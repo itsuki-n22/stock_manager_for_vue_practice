@@ -10,6 +10,14 @@
 
       <v-spacer></v-spacer>
 
+      <v-btn icon href="/users/">
+        <v-icon>mdi-account</v-icon>
+      </v-btn>
+
+      <v-btn icon href="/products/">
+        <v-icon>mdi-square</v-icon>
+      </v-btn>
+
       <v-btn icon>
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
@@ -18,42 +26,14 @@
         <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>
 
-      <template v-slot:extension>
-        <v-tabs
-          v-model="model"
-          centered
-          slider-color="yellow"
-        >
-          <v-tab
-            v-for="i in 3"
-            :key="i"
-            :href="`#tab-${i}`"
-          >
-            Item {{ i }}
-          </v-tab>
-        </v-tabs>
-      </template>
     </v-toolbar>
 
-    <v-tabs-items v-model="model">
-      <v-tab-item
-        v-for="i in 3"
-        :key="i"
-        :value="`tab-${i}`"
-      >
-        <v-card flat>
-          <v-card-text v-text="text"></v-card-text>
-        </v-card>
-      </v-tab-item>
-    </v-tabs-items>
   </v-card>
 </template>
 <script>
   export default {
     data () {
       return {
-        model: 'tab-2',
-        text: 'this text is test'
       }
     },
   }

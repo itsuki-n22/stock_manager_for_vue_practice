@@ -49,9 +49,11 @@
             </v-list-item-title>
             <v-list-item-subtitle v-if="todo.flag === true "> {{ todo.body }} </v-list-item-subtitle>
           </v-list-item-content>
-          <v-list-item-content>
-            <v-icon v-on:click="deleteTodo(todo)"> mdi-delete</v-icon>
-          </v-list-item-content>
+          <v-list-item-action>
+            <v-btn icon>
+              <v-icon v-on:click="deleteTodo(todo)"> mdi-delete</v-icon>
+            </v-btn icon>
+          </v-list-item-action>
         </v-list-item>
       </v-list>
     </v-list>

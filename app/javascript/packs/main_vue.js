@@ -3,6 +3,7 @@ import "vuetify/dist/vuetify.min.css"; // 追加
 import Vuetify from "vuetify"; // 追加
 import header1 from './components/header.vue'
 import todo_list from './components/todo_list.vue'
+import products from './components/products.vue'
 
 Vue.use(Vuetify); // 追加
 const vuetify = new Vuetify(); // 追加
@@ -14,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     data: {
       message: "Can you say hello?"
     },
-    components: { header1, todo_list }
+    components: { header1, todo_list, products }
   })
 })
 

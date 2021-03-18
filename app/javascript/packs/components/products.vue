@@ -1,10 +1,13 @@
 <template>
   <div>
+    <div class="mb-4">
+      <v-icon left v-on:click="toggleCreateProduct"> mdi-card-plus </v-icon>
+      <v-icon v-on:click="toggleIndexProduct" > mdi-format-list-text  </v-icon>
+    </div>
     <v-form ref="form">
-      <v-icon left v-on:click="toggleCreateProduct"> mdi-pencil </v-icon>
       <v-container v-if="createNewProductFlag === true">
         <v-row>
-          <v-col cols="12" md="4">
+          <v-col cols="12" md="2">
             <v-text-field
               v-model="newCode"
               label="code"
@@ -12,30 +15,37 @@
               required
             ></v-text-field>
           </v-col>
-          <v-col cols="12" md="4">
+          <v-col cols="12" md="6">
             <v-text-field
               v-model="newName"
               label="name" ></v-text-field>
           </v-col>
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="1">
             <v-text-field
-              v-model="newPrice"
+              v-model.number="newPrice"
               label="price"
             ></v-text-field>
           </v-col>
+          <v-col cols="12" md="2">
+            <v-file-input
+              multiple
+              truncate-length="5"
+              accept="image/*"
+              label="File input" @change="setImage"
+            ></v-file-input>
+          </v-col>
           <v-col cols="12" md="1">
-            <v-btn class="mr-4" @click="createProduct" > submit </v-btn>
+            <v-btn class="mr-4" @click="createProduct" ><v-icon>mdi-plus</v-icon></v-btn>
           </v-col>
 
         </v-row>
       </v-container>
     </v-form>
-    <v-icon v-on:click="toggleIndexProduct" > mdi-format-list-text  </v-icon>
     <div v-if="indexProductFlag === true">
       <v-list v-for="(product,index) in products" v-bind:key="product.id">
         <v-list-item >
-          <v-list-item-avatar v-on:click="toggle(index)">
-            <v-img src=""></v-img>
+          <v-list-item-avatar tile size="80" v-on:click="toggle(index)">
+            <v-img :src="product.first_image_url"></v-img>
           </v-list-item-avatar>
           <v-list-item-content>
             <v-container>
@@ -49,12 +59,38 @@
           </v-list-item-content>
           <v-list-item-action>
             <v-btn icon>
-            <v-icon v-on:click="updateProduct(product)"> mdi-square-edit-outline</v-icon>
+            <v-icon v-on:click="editProduct(product)"> mdi-square-edit-outline</v-icon>
             </v-btn icon>
           </v-list-item-action>
         </v-list-item>
       </v-list>
     </div>
+    <v-container>
+      <v-row justify="center">
+        <v-dialog v-model="editProductFlag" max-width="800px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">Edit Product</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12"><v-text-field label="Product ID (CODE)*" required v-model="editCode"></v-text-field></v-col>
+                  <v-col cols="12"><v-text-field label="Product Name" required v-model="editName"></v-text-field></v-col>
+                  <v-col cols="12"><v-text-field label="Product price*" required v-model="editPrice"></v-text-field></v-col>
+                </v-row>
+              </v-container>
+              <small>*必須</small>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="editProductFlag = false"> X </v-btn>
+              <v-btn color="blue darken-1" text @click="updateProduct"> Save </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </v-container>
   </div>
 </template>
 <script>
@@ -64,11 +100,18 @@
     data () {
       return {
         products: [],
-        createNewProductFlag: false,
+        formdata: new FormData,
         newPrice: "",
         newName: "",
         newCode: "",
+        editProductId: "",
+        editPrice: "",
+        editName: "",
+        editCode: "",
+        editImages: [],
         indexProductFlag: true,
+        editProductFlag: false,
+        createNewProductFlag: false,
         nameRules: [
           v => !!v || '入力してください',
           v => (v && v.length <= 50) || '50文字以下でお願いします。',
@@ -86,9 +129,18 @@
         if (!this.$refs.form.validate()){
           return false
         };
-        axios.post(`api/products/`, { code: this.newCode, name: this.newName, price: this.newPrice })
+        this.formdata.set('code', this.newCode);
+        this.formdata.set('name', this.newName);
+        this.formdata.set('price', this.newPrice);
+        let config = {
+          headers: {
+            'content-type': 'multipart/form-data'
+          }
+        };
+        axios.post(`api/products/`, this.formdata, config)
         .then(res => {
           this.products.push(res.data)
+          this.$refs.form.reset()
         });
       },
       getProduct(id){
@@ -107,14 +159,41 @@
       toggleIndexProduct: function(index){
         this.indexProductFlag = (this.indexProductFlag ? false : true )
       },
-      updateProduct(obj){
-        axios.patch(`api/products/${obj.id}`)
+      editProduct(obj){
+        this.formdata = new FormData
+        this.editProductFlag = true
+        this.editProductId = obj.id
+        this.editCode = obj.code
+        this.editPrice = obj.price
+        this.editName = obj.name
+      },
+      updateProduct(){
+        if (!this.$refs.form.validate()){
+          return false
+        };
+        this.formdata.set('id', this.editProductId);
+        this.formdata.set('code', this.editCode);
+        this.formdata.set('name', this.editName);
+        this.formdata.set('price', this.editPrice);
+        let config = {
+          headers: {
+            'content-type': 'multipart/form-data'
+          }
+        };
+        axios.patch(`api/products/${this.editProductId}`, this.formdata, config)
         .then(res => {
           var num = this.products.findIndex(function(product){
-            //if (product.id === res.data.id) { return true }
+            if (product.id === res.data.id) { return true }
           })
-          //this.products(num) = res.data
+          this.products[num] = res.data
+          this.editProductFlag = false
         });
+      },
+      setImage: function(files) {
+        this.formdata.delete('images[]')
+        for(let file of files){
+          this.formdata.append('images[]', file)
+        }
       },
     }
   }

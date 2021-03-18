@@ -6,6 +6,7 @@ class Api::ProductsController < ApplicationController
   end
   def create
     @product = Product.new(code: params[:code], name: params[:name], price: params[:price])
+    @product.images = params[:images]
     @product.save
     render formats: :json
   end
@@ -18,6 +19,9 @@ class Api::ProductsController < ApplicationController
     @product = Product.find(params[:id])
   end
   def update
+    p params
     @product = Product.find(params[:id])
+    @product.update(code: params[:code], name: params[:name], price: params[:price])
+    render formats: :json
   end
 end

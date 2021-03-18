@@ -2,7 +2,7 @@ Rails.application.routes.draw do
 
   root to: "users#index"
   resources :users
-  resources :products, only: %i[index show]
+  resources :products, only: %i[index show create]
   devise_for :users
 
   namespace :api do

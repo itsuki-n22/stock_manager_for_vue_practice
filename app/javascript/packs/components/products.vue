@@ -50,7 +50,12 @@
           <v-list-item-content>
             <v-container>
               <v-row align="center">
-                <v-col cols="12" md="3"> {{ product.code }} </v-col>
+                <v-col cols="12" md="3">
+                  <div class="font-weight-bold">{{ product.code }} </div>
+                  <div>{{ product.alias_id["sku"]["code"] }} </div>
+                  <div>{{ product.alias_id["asin"]["code"] }} </div>
+                  <div>{{ product.alias_id["car_id"]["code"] }} </div>
+                </v-col>
                 <v-col cols="12" md="1"> {{ product.price + " RMB" }} </v-col>
                 <v-col cols="12" md="5"> {{ product.name }} </v-col>
                 <v-col cols="4" md="1"><v-text-field @change='updateStock(product.stocks["office"])' label="office" v-model='product.stocks["office"]["quantity"]'></v-text-field> </v-col>
@@ -89,9 +94,13 @@
             <v-card-text>
               <v-container>
                 <v-row>
-                  <v-col cols="12"><v-text-field label="Product ID (CODE)*" required v-model="editCode"></v-text-field></v-col>
-                  <v-col cols="12"><v-text-field label="Product Name" required v-model="editName"></v-text-field></v-col>
-                  <v-col cols="12"><v-text-field label="Product price*" required v-model="editPrice"></v-text-field></v-col>
+                  <v-col cols="12"><v-text-field label="ID (CODE)*" required v-model="editCode"></v-text-field></v-col>
+                  <v-col cols="12"><v-text-field label="Name" required v-model="editName"></v-text-field></v-col>
+                  <v-col cols="12"><v-text-field label="price*" required v-model="editPrice"></v-text-field></v-col>
+                  <v-col cols="6"><v-text-field label="SKU" required v-model='editSKU["code"]'></v-text-field></v-col>
+                  <v-col cols="6"><v-text-field label="ASIN" v-model='editASIN["code"]'></v-text-field></v-col>
+                  <v-col cols="6"><v-text-field label="Car_id" v-model='editCarId["code"]'></v-text-field></v-col>
+                  <v-col cols="6"><v-text-field label="Other_id" v-model='editOtherId["code"]'></v-text-field></v-col>
                   <v-col cols="12">
                     <v-textarea label="explain" v-model="editExplain"></v-textarea>
                   </v-col>
@@ -125,6 +134,10 @@
         editPrice: "",
         editName: "",
         editExplain: "",
+        editSKU: "",
+        editASIN: "",
+        editCarId: "",
+        editOtherId: "",
         editCode: "",
         editImages: [],
         indexProductFlag: true,
@@ -185,6 +198,10 @@
         this.editPrice = obj.price
         this.editName = obj.name
         this.editExplain = obj.explain
+        this.editSKU = obj.alias_id["sku"]
+        this.editASIN = obj.alias_id["asin"]
+        this.editCarId = obj.alias_id["car_id"]
+        this.editOtherId = obj.alias_id["other_id"]
       },
       updateProduct(){
         if (!this.$refs.form.validate()){
@@ -195,6 +212,10 @@
         this.formdata.set('name', this.editName);
         this.formdata.set('price', this.editPrice);
         this.formdata.set('explain', this.editExplain);
+        this.formdata.set('asin', JSON.stringify(this.editASIN))
+        this.formdata.set('sku', JSON.stringify(this.editSKU))
+        this.formdata.set('car_id', JSON.stringify(this.editCarId))
+        this.formdata.set('other_id', JSON.stringify(this.editOtherId))
         let config = {
           headers: {
             'content-type': 'multipart/form-data'

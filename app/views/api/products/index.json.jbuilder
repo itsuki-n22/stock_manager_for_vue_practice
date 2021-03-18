@@ -15,4 +15,12 @@ json.array! @products do |product|
   json.first_image_url product.first_image_url
   json.image_urls product.image_urls
   json.flag false
+  product.alias_ids.each do |alias_id|
+      json.alias_id do 
+          json.set! alias_id.code_type do 
+          json.id alias_id.id
+          json.code alias_id.code
+          end
+      end
+  end  
 end

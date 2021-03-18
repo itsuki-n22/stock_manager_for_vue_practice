@@ -15,6 +15,7 @@ class Product < ApplicationRecord
 
   has_many_attached :images
   has_many :stocks, dependent: :destroy
+  has_many :alias_ids, dependent: :destroy
 
   def first_image_url
     images.attached? ? url_for(images.first) : nil
@@ -28,9 +29,16 @@ class Product < ApplicationRecord
     end
   end    
 
-  def init_stocks
+  def init_params
     Stock.places.each do |place, place_num|
       stocks.create(place: place_num, quantity: 0)
+    end
+    AliasId.code_types.each do |code_type, code_number|
+      if code_number == 0
+        alias_ids.create(code_type: code_type, code: code)
+      else
+        alias_ids.create(code_type: code_type, code: "")
+      end
     end
   end
 

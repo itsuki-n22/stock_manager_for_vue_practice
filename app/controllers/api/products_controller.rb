@@ -5,11 +5,10 @@ class Api::ProductsController < ApplicationController
     render formats: :json
   end
   def create
-    @product = Product.new(code: params[:code], name: params[:name], price: params[:price])
+    @product = Product.new(code: params[:code], name: params[:name], price: params[:price], explain: params[:explain])
     @product.images = params[:images]
     @product.save
     @product.init_stocks
-    p "hellllo create"
     render formats: :json
   end
   def destroy
@@ -22,7 +21,7 @@ class Api::ProductsController < ApplicationController
   end
   def update
     @product = Product.find(params[:id])
-    @product.update(code: params[:code], name: params[:name], price: params[:price])
+    @product.update(code: params[:code], name: params[:name], price: params[:price], explain: params[:explain])
     render formats: :json
   end
 end

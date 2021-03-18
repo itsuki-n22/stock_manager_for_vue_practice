@@ -13,5 +13,6 @@ json.array! @products do |product|
     end
   end  
   json.first_image_url product.first_image_url
+  json.image_urls product.image_urls
   json.flag false
 end

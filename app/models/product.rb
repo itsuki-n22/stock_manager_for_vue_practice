@@ -17,8 +17,15 @@ class Product < ApplicationRecord
   has_many :stocks, dependent: :destroy
 
   def first_image_url
-    # 紐づいている画像のURLを取得する
     images.attached? ? url_for(images.first) : nil
+  end    
+
+  def image_urls
+    if images.attached? 
+      Array.new(images.size){|n| url_for(images[n]) }
+    else
+      return []
+    end
   end    
 
   def init_stocks

@@ -12,3 +12,4 @@ json.id @product.id
     end
 end  
 json.first_image_url @product.first_image_url
+json.image_urls product.image_urls

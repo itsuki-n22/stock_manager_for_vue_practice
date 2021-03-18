@@ -51,14 +51,25 @@
             <v-container>
               <v-row align="center">
                 <v-col cols="12" md="3"> {{ product.code }} </v-col>
-                <v-col cols="12" md="5"> {{ product.name }} </v-col>
                 <v-col cols="12" md="1"> {{ product.price + " RMB" }} </v-col>
-                <v-col cols="12" md="1"><v-text-field @change='updateStock(product.stocks["office"])' label="office" v-model='product.stocks["office"]["quantity"]'></v-text-field> </v-col>
-                <v-col cols="12" md="1"><v-text-field @change='updateStock(product.stocks["fba"])' label="fba" v-model='product.stocks["fba"]["quantity"]'></v-text-field> </v-col>
-                <v-col cols="12" md="1"><v-text-field @change='updateStock(product.stocks["china"])' label="china" v-model='product.stocks["china"]["quantity"]'></v-text-field> </v-col>
+                <v-col cols="12" md="5"> {{ product.name }} </v-col>
+                <v-col cols="4" md="1"><v-text-field @change='updateStock(product.stocks["office"])' label="office" v-model='product.stocks["office"]["quantity"]'></v-text-field> </v-col>
+                <v-col cols="4" md="1"><v-text-field @change='updateStock(product.stocks["fba"])' label="fba" v-model='product.stocks["fba"]["quantity"]'></v-text-field> </v-col>
+                <v-col cols="4" md="1"><v-text-field @change='updateStock(product.stocks["china"])' label="china" v-model='product.stocks["china"]["quantity"]'></v-text-field> </v-col>
               </v-row>
             </v-container>
-            <v-list-item-subtitle v-if="product.flag === true "> {{ product.explain }} </v-list-item-subtitle>
+            <v-list-item-subtitle v-if="product.flag === true " style="white-space:pre;">
+              <v-container>
+                <v-row align="center">
+                  <v-col cols="12" md="6">{{ product.explain }}</v-col>
+                  <v-col v-for="(image_url, num) in product.image_urls" v-bind:key="num" cols="6" md="1">
+                    <v-list-item-avatar tile size="80" v-on:click="toggle(index)">
+                      <v-img :src="image_url"></v-img>
+                    </v-list-item-avatar>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
             <v-btn icon>
@@ -81,6 +92,9 @@
                   <v-col cols="12"><v-text-field label="Product ID (CODE)*" required v-model="editCode"></v-text-field></v-col>
                   <v-col cols="12"><v-text-field label="Product Name" required v-model="editName"></v-text-field></v-col>
                   <v-col cols="12"><v-text-field label="Product price*" required v-model="editPrice"></v-text-field></v-col>
+                  <v-col cols="12">
+                    <v-textarea label="explain" v-model="editExplain"></v-textarea>
+                  </v-col>
                 </v-row>
               </v-container>
               <small>*必須</small>
@@ -110,6 +124,7 @@
         editProductId: "",
         editPrice: "",
         editName: "",
+        editExplain: "",
         editCode: "",
         editImages: [],
         indexProductFlag: true,
@@ -169,6 +184,7 @@
         this.editCode = obj.code
         this.editPrice = obj.price
         this.editName = obj.name
+        this.editExplain = obj.explain
       },
       updateProduct(){
         if (!this.$refs.form.validate()){
@@ -178,6 +194,7 @@
         this.formdata.set('code', this.editCode);
         this.formdata.set('name', this.editName);
         this.formdata.set('price', this.editPrice);
+        this.formdata.set('explain', this.editExplain);
         let config = {
           headers: {
             'content-type': 'multipart/form-data'

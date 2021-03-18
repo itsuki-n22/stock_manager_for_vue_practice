@@ -49,10 +49,13 @@
           </v-list-item-avatar>
           <v-list-item-content>
             <v-container>
-              <v-row>
-                <v-col cols="12" md="4"> {{ product.code }} </v-col>
-                <v-col cols="12" md="4"> {{ product.name }} </v-col>
-                <v-col cols="12" md="4"> {{ product.price }} </v-col>
+              <v-row align="center">
+                <v-col cols="12" md="3"> {{ product.code }} </v-col>
+                <v-col cols="12" md="5"> {{ product.name }} </v-col>
+                <v-col cols="12" md="1"> {{ product.price + " RMB" }} </v-col>
+                <v-col cols="12" md="1"><v-text-field @change='updateStock(product.stocks["office"])' label="office" v-model='product.stocks["office"]["quantity"]'></v-text-field> </v-col>
+                <v-col cols="12" md="1"><v-text-field @change='updateStock(product.stocks["fba"])' label="fba" v-model='product.stocks["fba"]["quantity"]'></v-text-field> </v-col>
+                <v-col cols="12" md="1"><v-text-field @change='updateStock(product.stocks["china"])' label="china" v-model='product.stocks["china"]["quantity"]'></v-text-field> </v-col>
               </v-row>
             </v-container>
             <v-list-item-subtitle v-if="product.flag === true "> {{ product.explain }} </v-list-item-subtitle>
@@ -187,6 +190,22 @@
           })
           this.products[num] = res.data
           this.editProductFlag = false
+        });
+      },
+      updateStock(obj){
+        if (!this.$refs.form.validate()){
+          return false
+        };
+        this.formdata = new FormData
+        this.formdata.set('id', obj.id );
+        this.formdata.set('quantity', obj.quantity);
+        let config = {
+          headers: {
+            'content-type': 'multipart/form-data'
+          }
+        };
+        axios.patch(`api/stocks/${obj.id}`, this.formdata, config)
+        .then(res => {
         });
       },
       setImage: function(files) {

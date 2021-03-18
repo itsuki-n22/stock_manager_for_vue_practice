@@ -7,6 +7,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     resources :todos, only: %i[create update destroy show index]
-    resources :products, only: %i[create update destroy show index]
+    resources :products, only: %i[create update destroy show index] 
+    resources :stocks, only: %i[create update] 
   end
 end

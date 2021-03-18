@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_16_050342) do
+ActiveRecord::Schema.define(version: 2021_03_18_012611) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,6 +52,15 @@ ActiveRecord::Schema.define(version: 2021_03_16_050342) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "stocks", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.integer "place", null: false
+    t.integer "quantity", default: 0, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["product_id"], name: "index_stocks_on_product_id"
+  end
+
   create_table "todos", force: :cascade do |t|
     t.bigint "user_id"
     t.string "title", default: "", null: false
@@ -90,5 +99,6 @@ ActiveRecord::Schema.define(version: 2021_03_16_050342) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "stocks", "products"
   add_foreign_key "todos", "users"
 end

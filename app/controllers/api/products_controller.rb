@@ -1,7 +1,9 @@
 class Api::ProductsController < ApplicationController
   skip_before_action :verify_authenticity_token
   def index
-    @products = Product.all.order(:code)
+    search_keyword = params[:search_keyword]
+    @products = Product.left_joins(:alias_ids).distinct
+    @products = @products.where(['products.code like ? or alias_ids.code like ?', "%#{search_keyword}%", "%#{search_keyword}%"]).references(:alias_ids) if search_keyword
     render formats: :json
   end
   def create

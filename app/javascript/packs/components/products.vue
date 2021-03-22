@@ -1,8 +1,21 @@
 <template>
   <div>
     <div class="mb-4">
-      <v-icon left v-on:click="toggleCreateProduct"> mdi-card-plus </v-icon>
-      <v-icon v-on:click="toggleIndexProduct" > mdi-format-list-text  </v-icon>
+      <v-container>
+        <v-row>
+          <v-col cols="2">
+            <v-icon left v-on:click="toggleCreateProduct"> mdi-card-plus </v-icon>
+            <v-icon v-on:click="toggleIndexProduct" > mdi-format-list-text  </v-icon>
+          </v-col>
+          <v-col cols="10" @submit.prevent>
+            <v-form ref="searchForm">
+              <v-text-field v-model="searchKeyword" label="検索" @change="searchProducts"> 
+                <template v-slot:append-outer> <v-btn color="primary"> <v-icon>mdi-magnify</v-icon> </v-btn> </template> 
+              </v-text-field>
+            </v-form>
+          </v-col>
+        </v-row>
+      </v-container>
     </div>
     <v-form ref="form">
       <v-container v-if="createNewProductFlag === true">
@@ -128,6 +141,7 @@
         products: [],
         formdata: new FormData,
         newPrice: "",
+        searchKeyword: "",
         newName: "",
         newCode: "",
         editProductId: "",
@@ -174,11 +188,11 @@
           this.$refs.form.reset()
         });
       },
-      getProduct(id){
-        axios.get(`api/products/`)
+      searchProducts(){
+        axios.get(`api/products/?search_keyword=${this.searchKeyword}`)
         .then(res => {
-          this.title = res.data.title;
-          this.body = res.data.body;
+          this.products = res.data;
+          console.log(res.data)
         });
       },
       toggle: function(index){

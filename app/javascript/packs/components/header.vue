@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card class="mb-1">
     <v-toolbar
       color="green"
       dark
@@ -16,10 +16,6 @@
 
       <v-btn icon href="/products/">
         <v-icon>mdi-square</v-icon>
-      </v-btn>
-
-      <v-btn icon>
-        <v-icon>mdi-magnify</v-icon>
       </v-btn>
 
       <v-btn icon>

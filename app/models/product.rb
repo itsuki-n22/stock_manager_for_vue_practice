@@ -16,6 +16,8 @@ class Product < ApplicationRecord
   after_save :init_params
   validates :code, uniqueness: true
   validates :is_set, inclusion: {in: [true, false]}
+
+  has_one :memo, class_name: "ProductMemo", dependent: :destroy
   has_many_attached :images
   has_many :stocks, dependent: :destroy
   has_many :alias_ids, dependent: :destroy

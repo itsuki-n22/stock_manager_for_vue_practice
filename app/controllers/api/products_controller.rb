@@ -9,7 +9,7 @@ class Api::ProductsController < ApplicationController
   end
 
   def create
-    @product = Product.new(code: params[:code], name: params[:name], price: params[:price], explain: params[:explain], is_set: params[:is_set])
+    @product = Product.new(create_params)
     @product.images = params[:images]
     check_set_products
     @product.save
@@ -28,7 +28,7 @@ class Api::ProductsController < ApplicationController
   end
 
   def update
-    @product = Product.find(params[:id])
+    @product = Product.find(update_params[:id])
     @product.update(update_params)
     save_alias_ids
     check_set_products
@@ -37,8 +37,17 @@ class Api::ProductsController < ApplicationController
   end
 
   private
+
+    def create_params
+      params.require(:product).permit(:code, :name, :price, :explain, :is_set, :images)
+    end
+
     def update_params
-      params.permit(:code, :name, :price, :explain, :set_products, :alias_ids, :is_set, :images)
+      params.require(:product).permit(:id, :code, :name, :price, :explain, :is_set, :images)
+    end
+
+    def alias_ids_params
+      params.require(:alias_ids).permit(:sku, :asin, :other_id, :car_id)
     end
   
     def check_set_products
@@ -76,8 +85,8 @@ class Api::ProductsController < ApplicationController
 
     def save_alias_ids
       AliasId.code_types.each do |code_type, code_num|
-        next if params[code_type] == nil
-        val = JSON.parse(params[code_type])
+        next if alias_ids_params[code_type] == nil
+        val = JSON.parse(alias_ids_params[code_type])
         alias_id = @product.alias_ids.find(val["id"])
         alias_id.update(code: val["code"])
       end

@@ -1,6 +1,13 @@
 json.extract! product, :code, :name, :price, :explain,
   :id, :is_set, :first_image_url, :image_urls
 json.flag false
+if product.memo == nil
+  json.memo do
+    json.content ""
+  end
+else
+  json.memo product.memo, :id, :content
+end
 if product.is_set == true
   set_relationships = product.set_relationship
   set_price = 0

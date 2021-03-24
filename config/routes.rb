@@ -9,6 +9,7 @@ Rails.application.routes.draw do
     resources :todos, only: %i[create update destroy show index]
     resources :products, only: %i[create update destroy show index] 
     resources :stocks, only: %i[update] 
+    resources :memos, only: %i[create update] 
     resources :alias_ids, only: %i[update] 
   end
 end

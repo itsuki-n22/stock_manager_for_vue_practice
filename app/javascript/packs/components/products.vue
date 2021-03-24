@@ -121,7 +121,11 @@
                   <div>{{ product.alias_id["car_id"]["code"] }} </div>
                 </v-col>
                 <v-col cols="12" md="1"> {{ product.price + " RMB" }} </v-col>
-                <v-col cols="4" md="5" ><v-text-field @change='updateProductName(product)' label="name" v-model='product.name'></v-text-field> </v-col>
+                <v-col cols="12" md="5" >
+                  <v-text-field @change='updateProductName(product)' label="name" v-model='product.name'></v-text-field>
+                  <v-text-field label="memo" @change='updateProductMemo(product)' v-model='product.memo.content'></v-text-field>
+                </v-col>
+                
                 <v-col cols="4" md="1" v-if="product.is_set === false" ><v-text-field @change='updateStock(product.stocks["office"])' label="office" v-model='product.stocks["office"]["quantity"]'></v-text-field> </v-col>
                 <v-col cols="4" md="1" v-if="product.is_set === false" ><v-text-field @change='updateStock(product.stocks["fba"])' label="fba" v-model='product.stocks["fba"]["quantity"]'></v-text-field> </v-col>
                 <v-col cols="4" md="1" v-if="product.is_set === false" ><v-text-field @change='updateStock(product.stocks["china"])' label="china" v-model='product.stocks["china"]["quantity"]'></v-text-field> </v-col>
@@ -266,10 +270,10 @@
         if (!this.$refs.form.validate()){
           return false
         };
-        this.formdata.set('code', this.newCode);
-        this.formdata.set('name', this.newName);
-        this.formdata.set('price', this.newPrice);
-        this.formdata.set('is_set', false);
+        this.formdata.set('product[code]', this.newCode);
+        this.formdata.set('product[name]', this.newName);
+        this.formdata.set('product[price]', this.newPrice);
+        this.formdata.set('product[is_set]', false);
         let config = {
           headers: {
             'content-type': 'multipart/form-data'
@@ -285,10 +289,10 @@
         if (!this.$refs.createSetForm.validate()){
           return false
         };
-        this.formdata.set('code', this.newSetCode);
-        this.formdata.set('name', this.newSetName);
-        this.formdata.set('is_set', true);
-        this.formdata.set('price', 0);
+        this.formdata.set('product[code]', this.newCode);
+        this.formdata.set('product[name]', this.newName);
+        this.formdata.set('product[price]', 0);
+        this.formdata.set('product[is_set]', true);
         this.formdata.set('set_products', JSON.stringify(this.newSetProducts))
         let config = {
           headers: {
@@ -351,8 +355,8 @@
       },
       updateProductName(obj){
         this.formdata = new FormData
-        this.formdata.set('id', obj.id);
-        this.formdata.set('name', obj.name);
+        this.formdata.set('product[id]', obj.id);
+        this.formdata.set('product[name]', obj.name);
         if (obj.is_set === true) {
           this.formdata.set('set_products', JSON.stringify(obj.set_products))
         }
@@ -369,15 +373,15 @@
         if (!this.$refs.form.validate()){
           return false
         };
-        this.formdata.set('id', this.editProductId);
-        this.formdata.set('code', this.editCode);
-        this.formdata.set('name', this.editName);
-        this.formdata.set('price', this.editPrice);
-        this.formdata.set('explain', this.editExplain);
-        this.formdata.set('asin', JSON.stringify(this.editASIN))
-        this.formdata.set('sku', JSON.stringify(this.editSKU))
-        this.formdata.set('car_id', JSON.stringify(this.editCarId))
-        this.formdata.set('other_id', JSON.stringify(this.editOtherId))
+        this.formdata.set('product[id]', this.editProductId);
+        this.formdata.set('product[code]', this.editCode);
+        this.formdata.set('product[name]', this.editName);
+        this.formdata.set('product[price]', this.editPrice);
+        this.formdata.set('product[explain]', this.editExplain);
+        this.formdata.set('alias_ids[asin]', JSON.stringify(this.editASIN))
+        this.formdata.set('alias_ids[sku]', JSON.stringify(this.editSKU))
+        this.formdata.set('alias_ids[car_id]', JSON.stringify(this.editCarId))
+        this.formdata.set('alias_ids[other_id]', JSON.stringify(this.editOtherId))
         if (this.editIsSetFlag === true) {
           this.formdata.set('set_products', JSON.stringify(this.editSetProducts))
         }
@@ -394,6 +398,24 @@
           this.products[num] = res.data
           this.editProductFlag = false
         });
+      },
+      updateProductMemo(obj){
+        this.formdata = new FormData
+        if (obj.memo.id) {  /// update
+          this.formdata.set('memo[id]', obj.memo.id );
+          this.formdata.set('memo[content]', obj.memo.content);
+          axios.patch(`api/memos/${obj.memo.id}`, this.formdata)
+          .then(res => {
+            alert("updated")
+          });
+        } else {  /// create
+          this.formdata.set('product[id]', obj.id );
+          this.formdata.set('memo[content]', obj.memo.content);
+          axios.post(`api/memos/`, this.formdata)
+          .then(res => {
+            alert("created")
+          });
+        }
       },
       updateStock(obj){
         if (!this.$refs.form.validate()){

@@ -29,7 +29,7 @@ class Api::ProductsController < ApplicationController
 
   def update
     @product = Product.find(params[:id])
-    @product.update(code: params[:code], name: params[:name], price: params[:price], explain: params[:explain])
+    @product.update(update_params)
     save_alias_ids
     check_set_products
     update_set_products_if_it_set
@@ -37,6 +37,9 @@ class Api::ProductsController < ApplicationController
   end
 
   private
+    def update_params
+      params.permit(:code, :name, :price, :explain, :set_products, :alias_ids, :is_set, :images)
+    end
   
     def check_set_products
       set_products = JSON.parse(params[:set_products]) if params[:set_products]
@@ -61,7 +64,7 @@ class Api::ProductsController < ApplicationController
       end
     end
 
-    def update_set_products_if_it_set
+    def update_set_products_if_it_set ### params[:set_products] がない場合、差分は削除します。
       if @product.is_set && params[:set_products]
         @product.set_products.destroy_all
         JSON.parse(params[:set_products]).each do |set_product|
@@ -73,6 +76,7 @@ class Api::ProductsController < ApplicationController
 
     def save_alias_ids
       AliasId.code_types.each do |code_type, code_num|
+        next if params[code_type] == nil
         val = JSON.parse(params[code_type])
         alias_id = @product.alias_ids.find(val["id"])
         alias_id.update(code: val["code"])

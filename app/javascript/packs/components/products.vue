@@ -121,7 +121,7 @@
                   <div>{{ product.alias_id["car_id"]["code"] }} </div>
                 </v-col>
                 <v-col cols="12" md="1"> {{ product.price + " RMB" }} </v-col>
-                <v-col cols="12" md="5"> {{ product.name }} </v-col>
+                <v-col cols="4" md="5" ><v-text-field @change='updateProductName(product)' label="name" v-model='product.name'></v-text-field> </v-col>
                 <v-col cols="4" md="1" v-if="product.is_set === false" ><v-text-field @change='updateStock(product.stocks["office"])' label="office" v-model='product.stocks["office"]["quantity"]'></v-text-field> </v-col>
                 <v-col cols="4" md="1" v-if="product.is_set === false" ><v-text-field @change='updateStock(product.stocks["fba"])' label="fba" v-model='product.stocks["fba"]["quantity"]'></v-text-field> </v-col>
                 <v-col cols="4" md="1" v-if="product.is_set === false" ><v-text-field @change='updateStock(product.stocks["china"])' label="china" v-model='product.stocks["china"]["quantity"]'></v-text-field> </v-col>
@@ -208,8 +208,8 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="editProductFlag = false"> X </v-btn>
-              <v-btn color="blue darken-1" text @click="updateProduct"> Save </v-btn>
+              <v-btn color="blue darken-1" text @click="editProductFlag = false">cancel</v-btn>
+              <v-btn class="mr-4" @click="updateProduct" color="primary">更新</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -348,6 +348,22 @@
         } else {
           this.editIsSetFlag = false
         }
+      },
+      updateProductName(obj){
+        this.formdata = new FormData
+        this.formdata.set('id', obj.id);
+        this.formdata.set('name', obj.name);
+        if (obj.is_set === true) {
+          this.formdata.set('set_products', JSON.stringify(obj.set_products))
+        }
+        axios.patch(`api/products/${obj.id}`, this.formdata)
+        .then(res => {
+          var num = this.products.findIndex(function(product){
+            if (product.id === res.data.id) { return true }
+          })
+          this.products[num] = res.data
+          this.editProductFlag = false
+        });
       },
       updateProduct(){
         if (!this.$refs.form.validate()){

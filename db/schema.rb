@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_18_061044) do
+ActiveRecord::Schema.define(version: 2021_03_22_073655) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,6 +52,17 @@ ActiveRecord::Schema.define(version: 2021_03_18_061044) do
     t.index ["product_id"], name: "index_alias_ids_on_product_id"
   end
 
+  create_table "product_relationships", force: :cascade do |t|
+    t.integer "origin_id", null: false
+    t.integer "item_id", null: false
+    t.integer "quantity", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["item_id"], name: "index_product_relationships_on_item_id"
+    t.index ["origin_id", "item_id"], name: "index_product_relationships_on_origin_id_and_item_id", unique: true
+    t.index ["origin_id"], name: "index_product_relationships_on_origin_id"
+  end
+
   create_table "products", force: :cascade do |t|
     t.string "code", null: false
     t.string "name"
@@ -59,6 +70,7 @@ ActiveRecord::Schema.define(version: 2021_03_18_061044) do
     t.integer "price", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "is_set", default: false
   end
 
   create_table "stocks", force: :cascade do |t|

@@ -5,6 +5,7 @@
         <v-row>
           <v-col cols="2">
             <v-icon left v-on:click="toggleCreateProduct"> mdi-card-plus </v-icon>
+            <v-icon left v-on:click="toggleCreateSetProduct"> mdi-expand-all </v-icon>
             <v-icon v-on:click="toggleIndexProduct" > mdi-format-list-text  </v-icon>
           </v-col>
           <v-col cols="10" @submit.prevent>
@@ -17,8 +18,58 @@
         </v-row>
       </v-container>
     </div>
+    <v-form ref="createSetForm">
+      <v-container v-if="createNewSetProductFlag === true">
+        <h2> セット商品の登録 </h2>
+        <v-row>
+          <v-col cols="12" md="3">
+            <v-text-field
+              v-model="newSetCode"
+              label="code"
+              :rules="nameRules"
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="newSetName"
+              label="name" ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="2">
+            <v-file-input
+              multiple
+              truncate-length="5"
+              accept="image/*"
+              label="File input" @change="setImage"
+            ></v-file-input>
+          </v-col>
+          <v-col cols="12" md="1">
+            <v-btn class="mr-4" @click="createSetProduct" color="primary"><v-icon>mdi-plus</v-icon></v-btn>
+          </v-col>
+
+        </v-row>
+        <v-row>
+          <v-col cols="12" md="2" v-for="(newSetProduct, index) in newSetProducts">
+            <v-text-field
+              v-model="newSetProduct.code"
+              label="code"
+              :rules="nameRules"
+            ></v-text-field>
+            <v-text-field
+              v-model="newSetProduct.quantity"
+              label="quantity"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="1">
+            <v-btn class="mt-4" @click="addSetProduct" ><v-icon>mdi-plus</v-icon></v-btn>
+            <v-btn class="mt-4" @click="deleteSetProduct" ><v-icon>mdi-minus</v-icon></v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-form>
     <v-form ref="form">
       <v-container v-if="createNewProductFlag === true">
+        <h2> 単一商品の登録 </h2>
         <v-row>
           <v-col cols="12" md="2">
             <v-text-field
@@ -48,7 +99,7 @@
             ></v-file-input>
           </v-col>
           <v-col cols="12" md="1">
-            <v-btn class="mr-4" @click="createProduct" ><v-icon>mdi-plus</v-icon></v-btn>
+            <v-btn class="mr-4" @click="createProduct" color="primary"><v-icon>mdi-plus</v-icon></v-btn>
           </v-col>
 
         </v-row>
@@ -56,13 +107,13 @@
     </v-form>
     <div v-if="indexProductFlag === true">
       <v-list v-for="(product,index) in products" v-bind:key="product.id">
-        <v-list-item >
+        <v-list-item>
           <v-list-item-avatar tile size="80" v-on:click="toggle(index)">
             <v-img :src="product.first_image_url"></v-img>
           </v-list-item-avatar>
           <v-list-item-content>
             <v-container>
-              <v-row align="center">
+              <v-row align="center" >
                 <v-col cols="12" md="3">
                   <div class="font-weight-bold">{{ product.code }} </div>
                   <div>{{ product.alias_id["sku"]["code"] }} </div>
@@ -71,19 +122,43 @@
                 </v-col>
                 <v-col cols="12" md="1"> {{ product.price + " RMB" }} </v-col>
                 <v-col cols="12" md="5"> {{ product.name }} </v-col>
-                <v-col cols="4" md="1"><v-text-field @change='updateStock(product.stocks["office"])' label="office" v-model='product.stocks["office"]["quantity"]'></v-text-field> </v-col>
-                <v-col cols="4" md="1"><v-text-field @change='updateStock(product.stocks["fba"])' label="fba" v-model='product.stocks["fba"]["quantity"]'></v-text-field> </v-col>
-                <v-col cols="4" md="1"><v-text-field @change='updateStock(product.stocks["china"])' label="china" v-model='product.stocks["china"]["quantity"]'></v-text-field> </v-col>
+                <v-col cols="4" md="1" v-if="product.is_set === false" ><v-text-field @change='updateStock(product.stocks["office"])' label="office" v-model='product.stocks["office"]["quantity"]'></v-text-field> </v-col>
+                <v-col cols="4" md="1" v-if="product.is_set === false" ><v-text-field @change='updateStock(product.stocks["fba"])' label="fba" v-model='product.stocks["fba"]["quantity"]'></v-text-field> </v-col>
+                <v-col cols="4" md="1" v-if="product.is_set === false" ><v-text-field @change='updateStock(product.stocks["china"])' label="china" v-model='product.stocks["china"]["quantity"]'></v-text-field> </v-col>
+                <v-col cols="4" md="1" v-if="product.is_set === true" ><v-text-field disabled label='office' v-model='product.stocks["office"]["quantity"]'></v-text-field> </v-col>
+                <v-col cols="4" md="1" v-if="product.is_set === true" ><v-text-field disabled label='fba' v-model='product.stocks["fba"]["quantity"]'></v-text-field> </v-col>
+                <v-col cols="4" md="1" v-if="product.is_set === true" ><v-text-field disabled label="china" v-model='product.stocks["china"]["quantity"]'></v-text-field> </v-col>
               </v-row>
             </v-container>
-            <v-list-item-subtitle v-if="product.flag === true " style="white-space:pre;">
+            <v-list-item-subtitle v-if="product.flag === true " style="white-space:pre-wrap;">
               <v-container>
-                <v-row align="center">
+                <v-row align="center" v-if="product.is_set === false ">
                   <v-col cols="12" md="6">{{ product.explain }}</v-col>
-                  <v-col v-for="(image_url, num) in product.image_urls" v-bind:key="num" cols="6" md="1">
-                    <v-list-item-avatar tile size="80" v-on:click="toggle(index)">
-                      <v-img :src="image_url"></v-img>
-                    </v-list-item-avatar>
+                  <v-col v-for="(image_url, num) in product.image_urls" v-bind:key="num" cols="6" md="2">
+                    <v-card>
+                          <v-avatar tile size="80">
+                            <v-img :src="image_url"></v-img>
+                          </v-avatar>
+                    </v-card>
+                  </v-col>
+                </v-row>
+                <v-row align="center" v-if="product.is_set === true ">
+                  <v-col cols="12" md="6">{{ product.explain }}</v-col>
+                  <v-col v-for="(set_product, num) in product.set_products" v-bind:key="num" cols="12" md="2">
+                    <v-card>
+                      <v-container><v-row>
+                        <v-col cols="auto">
+                          <v-avatar tile size="80">
+                            <v-img :src="set_product.first_image_url"></v-img>
+                          </v-avatar>
+                        </v-col>
+                        <v-col cols="auto">
+                          <p>{{ set_product.code }} </p>
+                          <p>{{ "会社在庫：" + set_product.stocks["office"]["quantity"]}} </p>
+                          <p>{{ "FBA在庫：" + set_product.stocks["fba"]["quantity"]}} </p>
+                        </v-col>
+                      </v-row></v-container>
+                    </v-card>
                   </v-col>
                 </v-row>
               </v-container>
@@ -116,6 +191,16 @@
                   <v-col cols="6"><v-text-field label="Other_id" v-model='editOtherId["code"]'></v-text-field></v-col>
                   <v-col cols="12">
                     <v-textarea label="explain" v-model="editExplain"></v-textarea>
+                  </v-col>
+                </v-row>
+                <v-row v-if="editIsSetFlag">
+                  <v-col v-for="(set_product,index) in editSetProducts" cols="4" v-bind:key="index">
+                    <v-text-field label="set_item" v-model='set_product["code"]'></v-text-field>
+                    <v-text-field label="quantity" v-model='set_product["quantity"]'></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="1">
+                    <v-btn class="mt-4" @click="addEditSetProduct" ><v-icon>mdi-plus</v-icon></v-btn>
+                    <v-btn class="mt-4" @click="deleteEditSetProduct" ><v-icon>mdi-minus</v-icon></v-btn>
                   </v-col>
                 </v-row>
               </v-container>
@@ -154,9 +239,15 @@
         editOtherId: "",
         editCode: "",
         editImages: [],
+        editSetProducts: [],
+        editIsSetFlag: false,
         indexProductFlag: true,
         editProductFlag: false,
         createNewProductFlag: false,
+        newSetName: "",
+        newSetCode: "",
+        newSetProducts: [ {code: "", quantity: 1 }],
+        createNewSetProductFlag: false,
         nameRules: [
           v => !!v || '入力してください',
           v => (v && v.length <= 50) || '50文字以下でお願いします。',
@@ -167,6 +258,7 @@
       axios.get(`api/products/`)
       .then(res => {
         this.products = res.data;
+        console.log(this.products)
       });
     },
     methods: {
@@ -177,6 +269,7 @@
         this.formdata.set('code', this.newCode);
         this.formdata.set('name', this.newName);
         this.formdata.set('price', this.newPrice);
+        this.formdata.set('is_set', false);
         let config = {
           headers: {
             'content-type': 'multipart/form-data'
@@ -187,6 +280,29 @@
           this.products.push(res.data)
           this.$refs.form.reset()
         });
+      },
+      createSetProduct(){
+        if (!this.$refs.createSetForm.validate()){
+          return false
+        };
+        this.formdata.set('code', this.newSetCode);
+        this.formdata.set('name', this.newSetName);
+        this.formdata.set('is_set', true);
+        this.formdata.set('price', 0);
+        this.formdata.set('set_products', JSON.stringify(this.newSetProducts))
+        let config = {
+          headers: {
+            'content-type': 'multipart/form-data'
+          }
+        };
+        axios.post(`api/products/`, this.formdata, config)
+        .then(res => {
+          this.products.push(res.data)
+          this.$refs.createSetForm.reset()
+        })
+        .catch(res => { 
+          alert("セット商品のID(CODE)が間違っています。")
+         })
       },
       searchProducts(){
         axios.get(`api/products/?search_keyword=${this.searchKeyword}`)
@@ -200,6 +316,13 @@
       },
       toggleCreateProduct: function(index){
         this.createNewProductFlag = (this.createNewProductFlag ? false : true )
+        this.createNewSetProductFlag = false
+        this.formdata = new FormData
+      },
+      toggleCreateSetProduct: function(index){
+        this.createNewSetProductFlag = (this.createNewSetProductFlag ? false : true )
+        this.createNewProductFlag = false
+        this.formdata = new FormData
       },
       toggleIndexProduct: function(index){
         this.indexProductFlag = (this.indexProductFlag ? false : true )
@@ -216,6 +339,15 @@
         this.editASIN = obj.alias_id["asin"]
         this.editCarId = obj.alias_id["car_id"]
         this.editOtherId = obj.alias_id["other_id"]
+        if (obj.is_set === true) {
+          this.editIsSetFlag = true
+          this.editSetProducts = [];
+          for(let setProduct of obj.set_products){
+            this.editSetProducts.push(setProduct) 
+          }
+        } else {
+          this.editIsSetFlag = false
+        }
       },
       updateProduct(){
         if (!this.$refs.form.validate()){
@@ -230,6 +362,9 @@
         this.formdata.set('sku', JSON.stringify(this.editSKU))
         this.formdata.set('car_id', JSON.stringify(this.editCarId))
         this.formdata.set('other_id', JSON.stringify(this.editOtherId))
+        if (this.editIsSetFlag === true) {
+          this.formdata.set('set_products', JSON.stringify(this.editSetProducts))
+        }
         let config = {
           headers: {
             'content-type': 'multipart/form-data'
@@ -266,6 +401,18 @@
           this.formdata.append('images[]', file)
         }
       },
+      addSetProduct(){
+        this.newSetProducts.push({code: "", quantity: 1})
+      },
+      deleteSetProduct(){
+        this.newSetProducts.pop()
+      },
+      addEditSetProduct(){
+        this.editSetProducts.push({code: "", quantity: 1})
+      },
+      deleteEditSetProduct(){
+        this.editSetProducts.pop()
+      }
     }
   }
 </script>

@@ -5,6 +5,7 @@
 #  id         :bigint           not null, primary key
 #  code       :string           not null
 #  explain    :text
+#  is_set     :boolean          default(FALSE)
 #  name       :string
 #  price      :integer          not null
 #  created_at :datetime         not null

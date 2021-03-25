@@ -36,6 +36,10 @@ class Api::ProductsController < ApplicationController
     render formats: :json
   end
 
+  def import
+    Product.import(params[:csv])
+  end
+
   private
 
     def create_params

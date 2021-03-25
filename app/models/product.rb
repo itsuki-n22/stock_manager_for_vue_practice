@@ -48,6 +48,58 @@ class Product < ApplicationRecord
     end
   end    
 
+  def self.import(file)
+    CSV.foreach(file.path, headers: true) do |row|
+      product = find_by(id: row["id"]) || find_by(code: row["code"]) || new
+      this_id = product.id
+      product.attributes = row.to_hash.slice(*updatable_product_attributes)
+
+      csv_is_set = (row["is_set"] =~ /y/i) ? true : false
+      next if this_id && csv_is_set != product.is_set
+
+      product.id = this_id if this_id
+      product.is_set = csv_is_set if this_id == nil
+
+      if (product.is_set? && new_set_products(row).empty? == false ) || product.is_set? == false
+        product.save
+      else
+        next
+      end
+
+      product.alias_ids.each_with_index do |alias_id|
+        alias_id.code = alias_id_attributes(row)[alias_id.code_type] || ""
+        alias_id.save
+      end
+      if product.is_set == false
+        product.stocks.each_with_index do |stock|
+          stock.quantity = stock_attributes(row)[stock.place].to_i || 0
+          stock.save
+        end
+      else
+        new_set_products(row).each do |new_set_product|
+          new_set_item = Product.find_by(code: new_set_product)
+          product.add_set_item(new_set_item)
+        end
+      end
+    end
+  end
+
+  def self.updatable_product_attributes
+    ["id", "code", "explain", "name", "price"]
+  end
+  
+  def self.alias_id_attributes(row)
+    row.to_hash.slice(*AliasId.code_types.keys)
+  end
+
+  def self.stock_attributes(row)
+    row.to_hash.slice(*Stock.places.keys)
+  end
+
+  def self.new_set_products(row)
+    row.to_hash.delete_if{|key,val| key !~ /set_product/ }.values.compact
+  end
+
   def init_params
     if stocks.empty?
       Stock.places.each do |place, place_num|

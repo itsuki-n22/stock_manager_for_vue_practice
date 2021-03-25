@@ -4,9 +4,10 @@
       <v-container>
         <v-row>
           <v-col cols="2">
+            <v-icon v-on:click="toggleIndexProduct" > mdi-format-list-text  </v-icon>
             <v-icon left v-on:click="toggleCreateProduct"> mdi-card-plus </v-icon>
             <v-icon left v-on:click="toggleCreateSetProduct"> mdi-expand-all </v-icon>
-            <v-icon v-on:click="toggleIndexProduct" > mdi-format-list-text  </v-icon>
+            <v-icon v-on:click="toggleImportProducts" > mdi-file-upload  </v-icon>
           </v-col>
           <v-col cols="10" @submit.prevent>
             <v-form ref="searchForm">
@@ -18,6 +19,20 @@
         </v-row>
       </v-container>
     </div>
+    <v-form ref="importProductsForm">
+      <v-container v-if="importProductsFlag === true">
+        <h2> CSVで商品登録 </h2>
+        <v-row>
+          <v-col cols="12" md="2">
+            <v-file-input
+              truncate-length="5"
+              accept=".csv"
+              label="File input" @change="importProduct"
+            ></v-file-input>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-form>
     <v-form ref="createSetForm">
       <v-container v-if="createNewSetProductFlag === true">
         <h2> セット商品の登録 </h2>
@@ -252,6 +267,7 @@
         newSetCode: "",
         newSetProducts: [ {code: "", quantity: 1 }],
         createNewSetProductFlag: false,
+        importProductsFlag: false,
         nameRules: [
           v => !!v || '入力してください',
           v => (v && v.length <= 50) || '50文字以下でお願いします。',
@@ -321,11 +337,19 @@
       toggleCreateProduct: function(index){
         this.createNewProductFlag = (this.createNewProductFlag ? false : true )
         this.createNewSetProductFlag = false
+        this.importProductsFlag = false
+        this.formdata = new FormData
+      },
+      toggleImportProducts: function(index){
+        this.importProductsFlag = (this.importProductsFlag ? false : true )
+        this.createNewSetProductFlag = false
+        this.createNewProductFlag = false
         this.formdata = new FormData
       },
       toggleCreateSetProduct: function(index){
         this.createNewSetProductFlag = (this.createNewSetProductFlag ? false : true )
         this.createNewProductFlag = false
+        this.importProductsFlag = false
         this.formdata = new FormData
       },
       toggleIndexProduct: function(index){
@@ -406,14 +430,12 @@
           this.formdata.set('memo[content]', obj.memo.content);
           axios.patch(`api/memos/${obj.memo.id}`, this.formdata)
           .then(res => {
-            alert("updated")
           });
         } else {  /// create
           this.formdata.set('product[id]', obj.id );
           this.formdata.set('memo[content]', obj.memo.content);
           axios.post(`api/memos/`, this.formdata)
           .then(res => {
-            alert("created")
           });
         }
       },
@@ -432,6 +454,17 @@
         axios.patch(`api/stocks/${obj.id}`, this.formdata, config)
         .then(res => {
         });
+      },
+      importProduct(file) {
+        this.formdata = new FormData
+        this.formdata.append('csv', file)
+        if ( file === null){
+          return false
+        };
+        axios.post(`api/products/import`, this.formdata)
+        .then(res => {
+        });
+        this.$refs.importProductsForm.reset();
       },
       setImage: function(files) {
         this.formdata.delete('images[]')

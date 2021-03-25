@@ -7,7 +7,9 @@ Rails.application.routes.draw do
 
   namespace :api do
     resources :todos, only: %i[create update destroy show index]
-    resources :products, only: %i[create update destroy show index] 
+    resources :products, only: %i[create update destroy show index] do
+      post :import, on: :collection
+    end
     resources :stocks, only: %i[update] 
     resources :memos, only: %i[create update] 
     resources :alias_ids, only: %i[update] 

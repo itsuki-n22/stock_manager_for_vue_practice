@@ -1,8 +1,14 @@
 <template>
-  <div>
-    <div>
-      <v-alert dense type="success"> success </v-alert>
-    </div>
+  <div class="mt-16">
+    <v-alert
+      dense
+      text
+      outlined
+      type="success"
+      v-if="alert"
+    >
+      success
+    </v-alert>
     <div class="mb-4">
       <v-container>
         <v-row>
@@ -246,6 +252,7 @@
   export default {
     data () {
       return {
+        alert: false,
         products: [],
         formdata: new FormData,
         newPrice: "",
@@ -284,6 +291,7 @@
         this.products = res.data;
         console.log(this.products)
       });
+      this.hideAlert()
     },
     methods: {
       createProduct(){
@@ -493,6 +501,11 @@
       },
       deleteEditSetProduct(){
         this.editSetProducts.pop()
+      },
+      hideAlert(){
+        window.setInterval(() => {
+          this.alert = false;
+        }, 3000)
       }
     }
   }

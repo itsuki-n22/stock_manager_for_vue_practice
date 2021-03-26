@@ -1,6 +1,7 @@
 <template>
-  <v-card class="mb-1">
-    <v-toolbar
+  <v-card class="overflow-hidden">
+    <v-app-bar
+      fixed
       color="green"
       dark
     >
@@ -22,8 +23,7 @@
         <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>
 
-    </v-toolbar>
-
+    </v-app-bar>
   </v-card>
 </template>
 <script>

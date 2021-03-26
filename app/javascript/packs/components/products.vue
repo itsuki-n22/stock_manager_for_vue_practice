@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div>
+      <v-alert dense type="success"> success </v-alert>
+    </div>
     <div class="mb-4">
       <v-container>
         <v-row>
@@ -8,6 +11,7 @@
             <v-icon left v-on:click="toggleCreateProduct"> mdi-card-plus </v-icon>
             <v-icon left v-on:click="toggleCreateSetProduct"> mdi-expand-all </v-icon>
             <v-icon v-on:click="toggleImportProducts" > mdi-file-upload  </v-icon>
+            <v-icon v-on:click="downloadProducts" > mdi-file-download  </v-icon>
           </v-col>
           <v-col cols="10" @submit.prevent>
             <v-form ref="searchForm">
@@ -275,7 +279,7 @@
       }
     },
     mounted(){
-      axios.get(`api/products/`)
+      axios.get(`api/products.json`)
       .then(res => {
         this.products = res.data;
         console.log(this.products)
@@ -325,11 +329,17 @@
          })
       },
       searchProducts(){
-        axios.get(`api/products/?search_keyword=${this.searchKeyword}`)
+        axios.get(`api/products.json/?search_keyword=${this.searchKeyword}`)
         .then(res => {
           this.products = res.data;
           console.log(res.data)
         });
+      },
+      downloadProducts(){
+        axios.get(`api/products.csv/?search_keyword=${this.searchKeyword}`)
+        .then(res => {
+          console.log(res)
+        })
       },
       toggle: function(index){
         this.products[index].flag = (this.products[index].flag ? false : true )

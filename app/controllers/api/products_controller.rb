@@ -3,9 +3,12 @@ class Api::ProductsController < ApplicationController
   
   def index
     search_keyword = params[:search_keyword]
-    @products = Product.left_joins(:alias_ids).distinct
+    @products = Product.left_joins(:alias_ids).distinct.limit(200)
     @products = @products.where(['products.name like ? or products.code like ? or alias_ids.code like ?', "%#{search_keyword}%", "%#{search_keyword}%", "%#{search_keyword}%"]).references(:alias_ids) if search_keyword
-    render formats: :json
+    respond_to do |format|
+      format.json 
+      format.csv { send_data render_to_string, type: :csv, filename: "hoge.csv" }
+    end
   end
 
   def create

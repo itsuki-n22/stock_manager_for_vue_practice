@@ -99,6 +99,9 @@
                 <v-col cols="12" md="2"><v-text-field @change='updateOrder(order)' label="phone_number" v-model='order.phone_number'></v-text-field></v-col>
                 <v-col cols="12" md="1"><v-text-field @change='updateOrder(order)' label="delivery_cost" v-model='order.delivery_charge'></v-text-field></v-col>
                 <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" @change='updateOrder(order)' :items="status" label="status" v-model='order.status'></v-select></v-col>
+                <v-col cols="12" md="4">
+                  <v-text-field label="memo" @change='updateOrderMemo(order)' v-model='order.memo.content'></v-text-field>
+                </v-col>
                 <v-col cols="12" md="1">
                   <v-btn icon>
                     <v-icon v-on:click="editOrder(order)"> mdi-square-edit-outline</v-icon>

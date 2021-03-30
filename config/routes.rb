@@ -15,7 +15,8 @@ Rails.application.routes.draw do
       post :import, on: :collection
     end
     resources :stocks, only: %i[update] 
-    resources :memos, only: %i[create update] 
+    resources :product_memos, only: %i[create update] 
+    resources :order_memos, only: %i[create update] 
     resources :alias_ids, only: %i[update] 
   end
 end

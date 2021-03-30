@@ -1,4 +1,4 @@
-class Api::MemosController < ApplicationController
+class Api::ProductMemosController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   def create

@@ -446,13 +446,13 @@
         if (obj.memo.id) {  /// update
           this.formdata.set('memo[id]', obj.memo.id );
           this.formdata.set('memo[content]', obj.memo.content);
-          axios.patch(`api/memos/${obj.memo.id}`, this.formdata)
+          axios.patch(`api/product_memos/${obj.memo.id}`, this.formdata)
           .then(res => {
           });
         } else {  /// create
           this.formdata.set('product[id]', obj.id );
           this.formdata.set('memo[content]', obj.memo.content);
-          axios.post(`api/memos/`, this.formdata)
+          axios.post(`api/product_memos/`, this.formdata)
           .then(res => {
           });
         }

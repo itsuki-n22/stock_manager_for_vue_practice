@@ -9,10 +9,10 @@
 #  order_number    :string           not null
 #  phone_country   :integer
 #  phone_number    :string
-#  platform        :integer          default(0), not null
+#  platform        :integer          default("不明"), not null
 #  postal_code     :string
-#  prefecture      :string
-#  status          :integer          default(0), not null
+#  prefecture      :integer          default(0), not null
+#  status          :integer          default("注文直後"), not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #

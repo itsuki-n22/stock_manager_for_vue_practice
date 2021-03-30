@@ -51,7 +51,7 @@
           <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="order_id" v-model='newOrderNumber'></v-text-field></v-col>
           <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" :items="platforms" label="platform" v-model='newPlatform'></v-select></v-col>
           <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="postal_code" v-model='newPostalCode'></v-text-field></v-col>
-          <v-col cols="12" md="1"><v-text-field :rules="nameRules" label="prefecture" v-model='newPrefecture'></v-text-field></v-col>
+          <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" :items="prefectures" label="prefecture" v-model='newPrefecture'></v-select></v-col>
           <v-col cols="12" md="4"><v-text-field :rules="nameRules" label="address" v-model='newAddress'></v-text-field></v-col>
           <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="customer_name" v-model='newCustomerName'></v-text-field></v-col>
           <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="phone_number" v-model='newPhoneNumber'></v-text-field></v-col>
@@ -93,7 +93,7 @@
                 <v-col cols="12" md="2"><v-text-field @change='updateOrder(order)' label="order_id" v-model='order.order_number'></v-text-field></v-col>
                 <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" @change='updateOrder(order)' :items="platforms" label="platform" v-model='order.platform'></v-select></v-col>
                 <v-col cols="12" md="2"><v-text-field @change='updateOrder(order)' label="postal_code" v-model='order.postal_code'></v-text-field></v-col>
-                <v-col cols="12" md="1"><v-text-field @change='updateOrder(order)' label="prefecture" v-model='order.prefecture'></v-text-field></v-col>
+                <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" @change='updateOrder(order)' :items="prefectures" label="prefecture" v-model='order.prefecture'></v-select></v-col>
                 <v-col cols="12" md="4"><v-text-field @change='updateOrder(order)' label="address" v-model='order.address'></v-text-field></v-col>
                 <v-col cols="12" md="2"><v-text-field @change='updateOrder(order)' label="customer_name" v-model='order.customer_name'></v-text-field></v-col>
                 <v-col cols="12" md="2"><v-text-field @change='updateOrder(order)' label="phone_number" v-model='order.phone_number'></v-text-field></v-col>
@@ -182,6 +182,55 @@
           "発送待ち",  
           "配送済み",   
           "キャンセル",
+        ],
+        prefectures: [
+          '北海道',
+          '青森県',
+          '岩手県',
+          '宮城県',
+          '秋田県',
+          '山形県',
+          '福島県',
+          '茨城県',
+          '栃木県',
+          '群馬県',
+          '埼玉県',
+          '千葉県',
+          '東京都',
+          '神奈川県',
+          '新潟県',
+          '富山県',
+          '石川県',
+          '福井県',
+          '山梨県',
+          '長野県',
+          '岐阜県',
+          '静岡県',
+          '愛知県',
+          '三重県',
+          '滋賀県',
+          '京都府',
+          '大阪府',
+          '兵庫県',
+          '奈良県',
+          '和歌山県',
+          '鳥取県',
+          '島根県',
+          '岡山県',
+          '広島県',
+          '山口県',
+          '徳島県',
+          '香川県',
+          '愛媛県',
+          '高知県',
+          '福岡県',
+          '佐賀県',
+          '長崎県',
+          '熊本県',
+          '大分県',
+          '宮崎県',
+          '鹿児島県',
+          '沖縄県'
         ],
         alert: false,
         orders: [],

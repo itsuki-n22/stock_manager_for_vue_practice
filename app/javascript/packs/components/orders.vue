@@ -1,0 +1,417 @@
+<template>
+  <div class="mt-16">
+    <v-alert
+      dense
+      text
+      outlined
+      type="success"
+      v-if="alert"
+    >
+      success
+    </v-alert>
+    <div class="mb-4">
+      <v-container>
+        <v-row>
+          <v-col cols="2">
+            <v-icon v-on:click="toggleIndexOrder" > mdi-format-list-text  </v-icon>
+            <v-icon left v-on:click="toggleCreateOrder"> mdi-card-plus </v-icon>
+            <v-icon v-on:click="toggleImportOrders" > mdi-file-upload  </v-icon>
+            <v-icon v-on:click="downloadOrders" > mdi-file-download  </v-icon>
+          </v-col>
+          <v-col cols="10" @submit.prevent>
+            <v-form ref="searchForm">
+              <v-text-field v-model="searchKeyword" label="検索" @change="searchOrders"> 
+                <template v-slot:append-outer> <v-btn color="primary"> <v-icon>mdi-magnify</v-icon> </v-btn> </template> 
+              </v-text-field>
+            </v-form>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
+    <!-- 
+    <v-form ref="importOrdersForm">
+      <v-container v-if="importOrdersFlag === true">
+        <h2> CSVで注文登録 </h2>
+        <v-row>
+          <v-col cols="12" md="2">
+            <v-file-input
+              truncate-length="5"
+              accept=".csv"
+              label="File input" @change="importOrder"
+            ></v-file-input>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-form>
+    -->
+    <v-form ref="createForm">
+      <v-container v-if="createNewOrderFlag === true">
+        <h2> 注文の登録 </h2>
+        <v-row>
+          <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="order_id" v-model='newOrderNumber'></v-text-field></v-col>
+          <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" :items="platforms" label="platform" v-model='newPlatform'></v-select></v-col>
+          <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="postal_code" v-model='newPostalCode'></v-text-field></v-col>
+          <v-col cols="12" md="1"><v-text-field :rules="nameRules" label="prefecture" v-model='newPrefecture'></v-text-field></v-col>
+          <v-col cols="12" md="4"><v-text-field :rules="nameRules" label="address" v-model='newAddress'></v-text-field></v-col>
+          <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="customer_name" v-model='newCustomerName'></v-text-field></v-col>
+          <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="phone_number" v-model='newPhoneNumber'></v-text-field></v-col>
+          <v-col cols="12" md="1"><v-text-field  label="delivery_cost" v-model='newDeliveryCharge'></v-text-field></v-col>
+          <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" :items="status" label="status" v-model='newStatus'></v-select></v-col>
+          <v-col cols="12" md="1">
+            <v-btn class="mr-4" @click="createSetOrder" color="primary"><v-icon>mdi-plus</v-icon></v-btn>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12" md="2" v-for="(newSetOrder, index) in newSetOrders">
+            <v-text-field
+              v-model="newSetOrder.code"
+              label="code"
+              :rules="nameRules"
+            ></v-text-field>
+            <v-text-field
+              v-model="newSetOrder.price"
+              label="price"
+            ></v-text-field>
+            <v-text-field
+              v-model="newSetOrder.quantity"
+              label="quantity"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="1">
+            <v-btn class="mt-4" @click="addSetOrder" ><v-icon>mdi-plus</v-icon></v-btn>
+            <v-btn class="mt-4" @click="deleteSetOrder" ><v-icon>mdi-minus</v-icon></v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-form>
+    <div v-if="indexOrderFlag === true">
+      <v-list v-for="(order, index) in orders" v-bind:key="order.id">
+        <v-list-item>
+          <v-list-item-content>
+            <v-container>
+              <v-row align="center" >
+                <v-col cols="12" md="2"><v-text-field @change='updateOrder(order)' label="order_id" v-model='order.order_number'></v-text-field></v-col>
+                <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" @change='updateOrder(order)' :items="platforms" label="platform" v-model='order.platform'></v-select></v-col>
+                <v-col cols="12" md="2"><v-text-field @change='updateOrder(order)' label="postal_code" v-model='order.postal_code'></v-text-field></v-col>
+                <v-col cols="12" md="1"><v-text-field @change='updateOrder(order)' label="prefecture" v-model='order.prefecture'></v-text-field></v-col>
+                <v-col cols="12" md="4"><v-text-field @change='updateOrder(order)' label="address" v-model='order.address'></v-text-field></v-col>
+                <v-col cols="12" md="2"><v-text-field @change='updateOrder(order)' label="customer_name" v-model='order.customer_name'></v-text-field></v-col>
+                <v-col cols="12" md="2"><v-text-field @change='updateOrder(order)' label="phone_number" v-model='order.phone_number'></v-text-field></v-col>
+                <v-col cols="12" md="1"><v-text-field @change='updateOrder(order)' label="delivery_cost" v-model='order.delivery_charge'></v-text-field></v-col>
+                <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" @change='updateOrder(order)' :items="status" label="status" v-model='order.status'></v-select></v-col>
+                <v-col cols="12" md="1">
+                  <v-btn icon>
+                    <v-icon v-on:click="editOrder(order)"> mdi-square-edit-outline</v-icon>
+                    <v-icon v-on:click="deleteOrder(order)"> mdi-delete </v-icon>
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-list-item-content>
+          <v-list-item-action>
+          </v-list-item-action>
+        </v-list-item>
+      </v-list>
+    </div>
+    <!-- 
+    <v-container>
+      <v-row justify="center">
+        <v-dialog v-model="editOrderFlag" max-width="800px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">Edit Order</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12"><v-text-field label="ID (CODE)*" required v-model="editCode"></v-text-field></v-col>
+                  <v-col cols="12"><v-text-field label="Name" required v-model="editName"></v-text-field></v-col>
+                  <v-col cols="12"><v-text-field label="price*" required v-model="editPrice"></v-text-field></v-col>
+                  <v-col cols="6"><v-text-field label="SKU" required v-model='editSKU["code"]'></v-text-field></v-col>
+                  <v-col cols="6"><v-text-field label="ASIN" v-model='editASIN["code"]'></v-text-field></v-col>
+                  <v-col cols="6"><v-text-field label="Car_id" v-model='editCarId["code"]'></v-text-field></v-col>
+                  <v-col cols="6"><v-text-field label="Other_id" v-model='editOtherId["code"]'></v-text-field></v-col>
+                  <v-col cols="12">
+                    <v-textarea label="explain" v-model="editExplain"></v-textarea>
+                  </v-col>
+                </v-row>
+                <v-row v-if="editIsSetFlag">
+                  <v-col v-for="(set_order,index) in editSetOrders" cols="4" v-bind:key="index">
+                    <v-text-field label="set_item" v-model='set_order["code"]'></v-text-field>
+                    <v-text-field label="quantity" v-model='set_order["quantity"]'></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="1">
+                    <v-btn class="mt-4" @click="addEditSetOrder" ><v-icon>mdi-plus</v-icon></v-btn>
+                    <v-btn class="mt-4" @click="deleteEditSetOrder" ><v-icon>mdi-minus</v-icon></v-btn>
+                  </v-col>
+                </v-row>
+              </v-container>
+              <small>*必須</small>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="editOrderFlag = false">cancel</v-btn>
+              <v-btn class="mr-4" @click="updateOrder" color="primary">更新</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </v-container>
+    -->
+  </div>
+</template>
+<script>
+  import axios from 'axios';
+  axios.defaults.baseURL = '../';
+  export default {
+    data () {
+      return {
+        platforms: [
+         'Amazon',
+         '楽天', 
+         'ヤフオク1',
+         'ヤフオク2',
+         'Wowma',
+         'Qoo10',
+         'Base',
+         '不明', 
+        ],
+        status: [
+          "注文直後",  
+          "入金待ち",  
+          "発送待ち",  
+          "配送済み",   
+          "キャンセル",
+        ],
+        alert: false,
+        orders: [],
+        formdata: new FormData,
+        searchKeyword: "",
+        newCustomerName: "",
+        newPostalCode: "",
+        newPrefecture: "",
+        newAddress: "",
+        newPhoneNumber: "",
+        newOrderNumber: "",
+        newPlatform: "不明",
+        newDeliveryCharge: 598,
+        newStatus: "注文直後",
+        editOrderId: "",
+        editPrice: "",
+        editName: "",
+        editExplain: "",
+        editSKU: "",
+        editASIN: "",
+        editCarId: "",
+        editOtherId: "",
+        editCode: "",
+        editSetOrders: [],
+        editIsSetFlag: false,
+        indexOrderFlag: true,
+        editOrderFlag: false,
+        createNewOrderFlag: false,
+        newSetOrders: [ {code: "", quantity: 1, price: 0 }],
+        createNewSetOrderFlag: false,
+        importOrdersFlag: false,
+        nameRules: [
+          v => !!v || '入力してください',
+          v => (v && v.length <= 50) || '50文字以下でお願いします。',
+        ],
+      }
+    },
+    mounted(){
+      axios.get(`api/orders.json`)
+      .then(res => {
+        this.orders = res.data;
+        console.log(res)
+        console.log(this.orders)
+      });
+      this.hideAlert()
+    },
+    methods: {
+      createOrder(){
+        if (!this.$refs.form.validate()){
+          return false
+        };
+        this.formdata.set('order[code]', this.newCode);
+        this.formdata.set('order[name]', this.newName);
+        this.formdata.set('order[price]', this.newPrice);
+        this.formdata.set('order[is_set]', false);
+        let config = {
+          headers: {
+            'content-type': 'multipart/form-data'
+          }
+        };
+        axios.post(`api/orders/`, this.formdata, config)
+        .then(res => {
+          this.orders.push(res.data)
+          this.$refs.form.reset()
+        });
+      },
+      createSetOrder(){
+        if (!this.$refs.createForm.validate()){
+          return false
+        };
+        this.formdata = new FormData
+        this.formdata.set('order[customer_name]', this.newCustomerName);
+        this.formdata.set('order[postal_code]', this.newPostalCode);
+        this.formdata.set('order[prefecture]', this.newPrefecture);
+        this.formdata.set('order[address]', this.newAddress);
+        this.formdata.set('order[phone_number]', this.newPhoneNumber);
+        this.formdata.set('order[order_number]', this.newOrderNumber);
+        this.formdata.set('order[platform]', this.newPlatform);
+        this.formdata.set('order[delivery_charge]', this.newDeliveryCharge);
+        this.formdata.set('order[status]', this.newStatus);
+        //this.formdata.set('set_orders', JSON.stringify(this.newSetOrders))
+        //let config = {
+        //  headers: {
+        //    'content-type': 'multipart/form-data'
+        //  }
+        //};
+        axios.post(`api/orders.json`, this.formdata)
+        .then(res => {
+          this.orders.push(res.data)
+          this.$refs.createForm.reset()
+        })
+        .catch(res => { 
+          alert("セット商品のID(CODE)が間違っています。")
+         })
+      },
+      searchOrders(){
+        axios.get(`api/orders.json/?search_keyword=${this.searchKeyword}`)
+        .then(res => {
+          this.orders = res.data;
+          console.log(res.data)
+        });
+      },
+      downloadOrders(){
+        axios.get(`api/orders.csv/?search_keyword=${this.searchKeyword}`)
+        .then(res => {
+          console.log(res)
+        })
+      },
+      toggle: function(index){
+        this.orders[index].flag = (this.orders[index].flag ? false : true )
+      },
+      toggleCreateOrder: function(index){
+        this.createNewOrderFlag = (this.createNewOrderFlag ? false : true )
+        this.createNewSetOrderFlag = false
+        this.importOrdersFlag = false
+        this.formdata = new FormData
+      },
+      toggleImportOrders: function(index){
+        this.importOrdersFlag = (this.importOrdersFlag ? false : true )
+        this.createNewSetOrderFlag = false
+        this.createNewOrderFlag = false
+        this.formdata = new FormData
+      },
+      toggleIndexOrder: function(index){
+        this.indexOrderFlag = (this.indexOrderFlag ? false : true )
+      },
+      editOrder(obj){
+        this.formdata = new FormData
+        this.editOrderFlag = true
+        this.editOrderId = obj.id
+        this.editCode = obj.code
+        this.editPrice = obj.price
+        this.editName = obj.name
+        this.editExplain = obj.explain
+        this.editSKU = obj.alias_id["sku"]
+        this.editASIN = obj.alias_id["asin"]
+        this.editCarId = obj.alias_id["car_id"]
+        this.editOtherId = obj.alias_id["other_id"]
+      },
+      updateOrderName(obj){
+        this.formdata = new FormData
+        this.formdata.set('order[id]', obj.id);
+        this.formdata.set('order[name]', obj.name);
+        if (obj.is_set === true) {
+          this.formdata.set('set_orders', JSON.stringify(obj.set_orders))
+        }
+        axios.patch(`api/orders/${obj.id}`, this.formdata)
+        .then(res => {
+          var num = this.orders.findIndex(function(order){
+            if (order.id === res.data.id) { return true }
+          })
+          this.orders[num] = res.data
+          this.editOrderFlag = false
+        });
+      },
+      updateOrder(obj){
+        this.formdata = new FormData
+        this.formdata.set('order[id]', obj.id);
+        this.formdata.set('order[customer_name]', obj.customer_name);
+        this.formdata.set('order[postal_code]', obj.postal_code);
+        this.formdata.set('order[prefecture]', obj.prefecture);
+        this.formdata.set('order[address]', obj.address);
+        this.formdata.set('order[phone_number]', obj.phone_number);
+        this.formdata.set('order[order_number]', obj.order_number);
+        this.formdata.set('order[platform]', obj.platform);
+        this.formdata.set('order[delivery_charge]', obj.delivery_charge);
+        this.formdata.set('order[status]', obj.status);
+        axios.patch(`api/orders/${obj.id}.json`, this.formdata)
+        .then(res => {
+          var num = this.orders.findIndex(function(order){
+            if (order.id === res.data.id) { return true }
+          })
+          this.orders[num] = res.data
+          this.editOrderFlag = false
+        });
+      },
+      updateOrderMemo(obj){
+        this.formdata = new FormData
+        if (obj.memo.id) {  /// update
+          this.formdata.set('memo[id]', obj.memo.id );
+          this.formdata.set('memo[content]', obj.memo.content);
+          axios.patch(`api/memos/${obj.memo.id}`, this.formdata)
+          .then(res => {
+          });
+        } else {  /// create
+          this.formdata.set('order[id]', obj.id );
+          this.formdata.set('memo[content]', obj.memo.content);
+          axios.post(`api/memos/`, this.formdata)
+          .then(res => {
+          });
+        }
+      },
+      deleteOrder(obj){ /// 要修正
+        this.formdata = new FormData
+        axios.delete (`api/orders/${obj.id}.json`, this.formdata)
+        .then(res => {
+          var num = this.orders.findIndex(function(order){
+            if (order.id === res.data.id) { return true }
+          })
+          this.orders.splice(num,1)
+        });
+      },
+      importOrder(file) {
+        this.formdata = new FormData
+        this.formdata.append('csv', file)
+        if ( file === null){
+          return false
+        };
+        axios.post(`api/orders/import`, this.formdata)
+        .then(res => {
+        });
+        this.$refs.importOrdersForm.reset();
+      },
+      addSetOrder(){
+        this.newSetOrders.push({code: "", quantity: 1})
+      },
+      deleteSetOrder(){
+        this.newSetOrders.pop()
+      },
+      addEditSetOrder(){
+        this.editSetOrders.push({code: "", quantity: 1})
+      },
+      deleteEditSetOrder(){
+        this.editSetOrders.pop()
+      },
+      hideAlert(){
+        window.setInterval(() => {
+          this.alert = false;
+        }, 3000)
+      }
+    }
+  }
+</script>

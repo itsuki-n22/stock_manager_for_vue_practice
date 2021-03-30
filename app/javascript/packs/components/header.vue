@@ -19,6 +19,10 @@
         <v-icon>mdi-square</v-icon>
       </v-btn>
 
+      <v-btn icon href="/orders/">
+        <v-icon>mdi-cube-send</v-icon>
+      </v-btn>
+
       <v-btn icon>
         <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>

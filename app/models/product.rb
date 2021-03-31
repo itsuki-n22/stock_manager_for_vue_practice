@@ -17,6 +17,7 @@ class Product < ApplicationRecord
   validates :code, uniqueness: true
   validates :is_set, inclusion: {in: [true, false]}
 
+  has_one :shipping_items
   has_one :memo, class_name: "ProductMemo", dependent: :destroy
   has_many_attached :images
   has_many :stocks, dependent: :destroy

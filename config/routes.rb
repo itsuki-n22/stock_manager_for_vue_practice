@@ -17,6 +17,7 @@ Rails.application.routes.draw do
     resources :stocks, only: %i[update] 
     resources :product_memos, only: %i[create update] 
     resources :order_memos, only: %i[create update] 
+    resources :shipping_items, only: %i[destroy] 
     resources :alias_ids, only: %i[update] 
   end
 end

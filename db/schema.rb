@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_30_044101) do
+ActiveRecord::Schema.define(version: 2021_03_30_051039) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -50,6 +50,13 @@ ActiveRecord::Schema.define(version: 2021_03_30_044101) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["product_id"], name: "index_alias_ids_on_product_id"
+  end
+
+  create_table "delivery_agents", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "track_url"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "order_memos", force: :cascade do |t|
@@ -106,6 +113,19 @@ ActiveRecord::Schema.define(version: 2021_03_30_044101) do
     t.boolean "is_set", default: false
   end
 
+  create_table "shipping_items", force: :cascade do |t|
+    t.bigint "order_id", null: false
+    t.bigint "product_id", null: false
+    t.integer "price", default: 0, null: false
+    t.integer "quantity", default: 1, null: false
+    t.string "tracking_number"
+    t.boolean "is_sent"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["order_id"], name: "index_shipping_items_on_order_id"
+    t.index ["product_id"], name: "index_shipping_items_on_product_id"
+  end
+
   create_table "stocks", force: :cascade do |t|
     t.bigint "product_id", null: false
     t.integer "place", null: false
@@ -156,6 +176,8 @@ ActiveRecord::Schema.define(version: 2021_03_30_044101) do
   add_foreign_key "alias_ids", "products"
   add_foreign_key "order_memos", "orders"
   add_foreign_key "product_memos", "products"
+  add_foreign_key "shipping_items", "orders"
+  add_foreign_key "shipping_items", "products"
   add_foreign_key "stocks", "products"
   add_foreign_key "todos", "users"
 end

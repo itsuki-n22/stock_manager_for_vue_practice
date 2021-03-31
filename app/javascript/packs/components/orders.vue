@@ -62,18 +62,18 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col cols="12" md="2" v-for="(newSetOrder, index) in newSetOrders">
+          <v-col cols="12" md="2" v-for="(newOrderProduct, index) in newOrderProducts">
             <v-text-field
-              v-model="newSetOrder.code"
-              label="code"
+              v-model="newOrderProduct.product_id"
+              label="product_id"
               :rules="nameRules"
             ></v-text-field>
             <v-text-field
-              v-model="newSetOrder.price"
+              v-model="newOrderProduct.price"
               label="price"
             ></v-text-field>
             <v-text-field
-              v-model="newSetOrder.quantity"
+              v-model="newOrderProduct.quantity"
               label="quantity"
             ></v-text-field>
           </v-col>
@@ -92,21 +92,39 @@
               <v-row align="center" >
                 <v-col cols="12" md="2"><v-text-field @change='updateOrder(order)' label="order_id" v-model='order.order_number'></v-text-field></v-col>
                 <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" @change='updateOrder(order)' :items="platforms" label="platform" v-model='order.platform'></v-select></v-col>
-                <v-col cols="12" md="2"><v-text-field @change='updateOrder(order)' label="postal_code" v-model='order.postal_code'></v-text-field></v-col>
-                <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" @change='updateOrder(order)' :items="prefectures" label="prefecture" v-model='order.prefecture'></v-select></v-col>
-                <v-col cols="12" md="4"><v-text-field @change='updateOrder(order)' label="address" v-model='order.address'></v-text-field></v-col>
+                <v-col v-if="order.flag" cols="12" md="2"><v-text-field @change='updateOrder(order)' label="postal_code" v-model='order.postal_code'></v-text-field></v-col>
+                <v-col v-if="order.flag" cols="12" md="2"><v-select return-object item-text="label" item-value="value" @change='updateOrder(order)' :items="prefectures" label="prefecture" v-model='order.prefecture'></v-select></v-col>
+                <v-col v-if="order.flag" cols="12" md="4"><v-text-field @change='updateOrder(order)' label="address" v-model='order.address'></v-text-field></v-col>
                 <v-col cols="12" md="2"><v-text-field @change='updateOrder(order)' label="customer_name" v-model='order.customer_name'></v-text-field></v-col>
-                <v-col cols="12" md="2"><v-text-field @change='updateOrder(order)' label="phone_number" v-model='order.phone_number'></v-text-field></v-col>
-                <v-col cols="12" md="1"><v-text-field @change='updateOrder(order)' label="delivery_cost" v-model='order.delivery_charge'></v-text-field></v-col>
+                <v-col v-if="order.flag" cols="12" md="2"><v-text-field @change='updateOrder(order)' label="phone_number" v-model='order.phone_number'></v-text-field></v-col>
+                <v-col v-if="order.flag" cols="12" md="1"><v-text-field @change='updateOrder(order)' label="delivery_cost" v-model='order.delivery_charge'></v-text-field></v-col>
                 <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" @change='updateOrder(order)' :items="status" label="status" v-model='order.status'></v-select></v-col>
-                <v-col cols="12" md="4">
-                  <v-text-field label="memo" @change='updateOrderMemo(order)' v-model='order.memo.content'></v-text-field>
-                </v-col>
+                <v-col v-if="order.flag" cols="12" md="4"><v-text-field label="memo" @change='updateOrderMemo(order)' v-model='order.memo.content'></v-text-field></v-col>
+                <v-col v-if="order.flag === false" cols="12" md="3"><v-text-field label="memo" @change='updateOrderMemo(order)' v-model='order.memo.content'></v-text-field></v-col>
                 <v-col cols="12" md="1">
-                  <v-btn icon>
-                    <v-icon v-on:click="editOrder(order)"> mdi-square-edit-outline</v-icon>
-                    <v-icon v-on:click="deleteOrder(order)"> mdi-delete </v-icon>
-                  </v-btn>
+                  <v-btn class="mt-4" @click="toggle(index)"><v-icon> mdi-account-box </v-icon></v-btn>
+                  <v-btn class="mt-4" @click="deleteOrder(order)"><v-icon> mdi-delete </v-icon></v-btn>
+                </v-col>
+
+              </v-row>
+              <v-row align="center" v-for="(shipping_item, index) in order.shipping_items" v-bind:key="shipping_item.id">
+                <v-col cols="6" md="2">
+                  <v-list-item-avatar tile size="80">
+                    <v-img :src="shipping_item.first_image_url"></v-img>
+                  </v-list-item-avatar>
+                </v-col>
+                <v-col cols="6" md="6">
+                  <v-text-field label="product_id" @change='updateOrder(order)' v-model='shipping_item.product_id'></v-text-field>
+                </v-col>
+                <v-col cols="6" md="2">
+                  <v-text-field label="price" @change='updateOrder(order)' v-model='shipping_item.price'></v-text-field>
+                </v-col>
+                <v-col cols="3" md="1">
+                  <v-text-field label="quantity" @change='updateOrder(order)' v-model='shipping_item.quantity'></v-text-field>
+                </v-col>
+                <v-col cols="3" md="1" v-if="order.shipping_items.length === index + 1 ">
+                  <v-btn class="mt-4" @click="addShippingItem(order)" ><v-icon>mdi-plus</v-icon></v-btn>
+                  <v-btn class="mt-4" v-if="index !== 0" @click="deleteShippingItem(order)" ><v-icon>mdi-minus</v-icon></v-btn>
                 </v-col>
               </v-row>
             </v-container>
@@ -262,7 +280,7 @@
         indexOrderFlag: true,
         editOrderFlag: false,
         createNewOrderFlag: false,
-        newSetOrders: [ {code: "", quantity: 1, price: 0 }],
+        newOrderProducts: [ {product_id: "", quantity: 1, price: 0 }],
         createNewSetOrderFlag: false,
         importOrdersFlag: false,
         nameRules: [
@@ -314,12 +332,7 @@
         this.formdata.set('order[platform]', this.newPlatform);
         this.formdata.set('order[delivery_charge]', this.newDeliveryCharge);
         this.formdata.set('order[status]', this.newStatus);
-        //this.formdata.set('set_orders', JSON.stringify(this.newSetOrders))
-        //let config = {
-        //  headers: {
-        //    'content-type': 'multipart/form-data'
-        //  }
-        //};
+        this.formdata.set('shipping_items', JSON.stringify(this.newOrderProducts))
         axios.post(`api/orders.json`, this.formdata)
         .then(res => {
           this.orders.push(res.data)
@@ -360,35 +373,6 @@
       toggleIndexOrder: function(index){
         this.indexOrderFlag = (this.indexOrderFlag ? false : true )
       },
-      editOrder(obj){
-        this.formdata = new FormData
-        this.editOrderFlag = true
-        this.editOrderId = obj.id
-        this.editCode = obj.code
-        this.editPrice = obj.price
-        this.editName = obj.name
-        this.editExplain = obj.explain
-        this.editSKU = obj.alias_id["sku"]
-        this.editASIN = obj.alias_id["asin"]
-        this.editCarId = obj.alias_id["car_id"]
-        this.editOtherId = obj.alias_id["other_id"]
-      },
-      updateOrderName(obj){
-        this.formdata = new FormData
-        this.formdata.set('order[id]', obj.id);
-        this.formdata.set('order[name]', obj.name);
-        if (obj.is_set === true) {
-          this.formdata.set('set_orders', JSON.stringify(obj.set_orders))
-        }
-        axios.patch(`api/orders/${obj.id}`, this.formdata)
-        .then(res => {
-          var num = this.orders.findIndex(function(order){
-            if (order.id === res.data.id) { return true }
-          })
-          this.orders[num] = res.data
-          this.editOrderFlag = false
-        });
-      },
       updateOrder(obj){
         this.formdata = new FormData
         this.formdata.set('order[id]', obj.id);
@@ -401,6 +385,7 @@
         this.formdata.set('order[platform]', obj.platform);
         this.formdata.set('order[delivery_charge]', obj.delivery_charge);
         this.formdata.set('order[status]', obj.status);
+        this.formdata.set('shipping_items', JSON.stringify(obj.shipping_items))
         axios.patch(`api/orders/${obj.id}.json`, this.formdata)
         .then(res => {
           var num = this.orders.findIndex(function(order){
@@ -415,18 +400,19 @@
         if (obj.memo.id) {  /// update
           this.formdata.set('memo[id]', obj.memo.id );
           this.formdata.set('memo[content]', obj.memo.content);
-          axios.patch(`api/memos/${obj.memo.id}`, this.formdata)
+          axios.patch(`api/order_memos/${obj.memo.id}`, this.formdata)
           .then(res => {
           });
         } else {  /// create
           this.formdata.set('order[id]', obj.id );
           this.formdata.set('memo[content]', obj.memo.content);
-          axios.post(`api/memos/`, this.formdata)
+          axios.post(`api/order_memos/`, this.formdata)
           .then(res => {
           });
         }
       },
       deleteOrder(obj){ /// 要修正
+        if (window.confirm("本当にこの注文を削除しますか?") === false ){ return true }
         this.formdata = new FormData
         axios.delete (`api/orders/${obj.id}.json`, this.formdata)
         .then(res => {
@@ -448,22 +434,37 @@
         this.$refs.importOrdersForm.reset();
       },
       addSetOrder(){
-        this.newSetOrders.push({code: "", quantity: 1})
+        this.newOrderProducts.push({product_id: "", quantity: 1, price: 0 })
       },
       deleteSetOrder(){
-        this.newSetOrders.pop()
-      },
-      addEditSetOrder(){
-        this.editSetOrders.push({code: "", quantity: 1})
-      },
-      deleteEditSetOrder(){
-        this.editSetOrders.pop()
+        this.newOrderProducts.pop()
       },
       hideAlert(){
         window.setInterval(() => {
           this.alert = false;
         }, 3000)
-      }
+      },
+      addShippingItem(order){
+        console.log(order)
+        order.shipping_items.push({product_id: "", quantity: 1, price: 0})
+      },
+      deleteShippingItem(order){
+        if (window.confirm("本当にこの商品を削除しますか?") === false ){ return true }
+        var item = order.shipping_items.pop()
+        this.formdata = new FormData
+        axios.delete (`api/shipping_items/${item.id}.json`, this.formdata)
+        .then(res => { //要変更
+          //var num = this.orders.findIndex(function(order){
+          // if (order.id === res.data.id) { return true }
+          //})
+          //this.orders.splice(num,1)
+        });
+      },
     }
   }
 </script>
+<style scoped>
+  .v-list:nth-child(even){
+    background: #eee;
+  }
+</style>

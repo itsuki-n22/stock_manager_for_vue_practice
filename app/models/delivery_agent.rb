@@ -9,4 +9,5 @@
 #  updated_at :datetime         not null
 #
 class DeliveryAgent < ApplicationRecord
+  has_many :shipping_items
 end

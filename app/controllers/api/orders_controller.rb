@@ -18,14 +18,17 @@ class Api::OrdersController < ApplicationController
   end
 
   def update
-    shipping_items = shipping_items_with_check_validation
+    p params
+    p shipping_items = shipping_items_with_check_validation
     @order = Order.find(order_params[:id])
     @order.update(order_params)
     shipping_items.each do |shipping_item|
       shipping_item = shipping_item.slice(*ShippingItem.column_names)
-      if shipping_item["id"] && ShippingItem.find(shipping_item["id"]) 
+      if shipping_item["id"] && ShippingItem.find(shipping_item["id"])  #update
+        p "------------"
+        p shipping_item
         @order.shipping_items.find(shipping_item["id"]).update(shipping_item)
-      else 
+      else  #create
         @order.shipping_items.build(shipping_item).save
       end
     end

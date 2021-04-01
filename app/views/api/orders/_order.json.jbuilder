@@ -15,6 +15,9 @@ json.shipping_items do
     json.product_id product.code
     json.first_image_url product.first_image_url
     json.quantity shipping_item.quantity
+    json.tracking_number shipping_item.tracking_number
+    json.delivery_agent shipping_item.delivery_agent
+    json.is_sent shipping_item.is_sent
     json.price shipping_item.price
     json.id shipping_item.id
   end

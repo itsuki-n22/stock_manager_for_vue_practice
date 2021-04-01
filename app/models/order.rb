@@ -24,6 +24,7 @@
 class Order < ApplicationRecord
   validates :order_number, uniqueness: true
   has_one :memo, class_name: 'OrderMemo', dependent: :destroy
+  has_one :delivery_agents, class_name: 'DeliveryAgent'
   has_many :shipping_items, dependent: :destroy
   enum status: ["注文直後","入金待ち","発送待ち", "配送済み", "キャンセル"]
   enum platform: ["不明", "ヤフオク1","ヤフオク2" ,"楽天", "Amazon", "Wowma", "Base", "Qoo10"]

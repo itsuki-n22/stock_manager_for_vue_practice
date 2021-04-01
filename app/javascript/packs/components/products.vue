@@ -145,7 +145,7 @@
                   <div>{{ product.alias_id["asin"]["code"] }} </div>
                   <div>{{ product.alias_id["car_id"]["code"] }} </div>
                 </v-col>
-                <v-col cols="12" md="1"> {{ product.price + " RMB" }} </v-col>
+                <v-col cols="12" md="1"><v-text-field disabled filled label='RMB' v-model='product.price'></v-text-field> </v-col>
                 <v-col cols="12" md="5" >
                   <v-text-field @change='updateProductName(product)' label="name" v-model='product.name'></v-text-field>
                   <v-text-field label="memo" @change='updateProductMemo(product)' v-model='product.memo.content'></v-text-field>
@@ -162,17 +162,27 @@
             <v-list-item-subtitle v-if="product.flag === true " style="white-space:pre-wrap;">
               <v-container>
                 <v-row align="center" v-if="product.is_set === false ">
-                  <v-col cols="12" md="6">{{ product.explain }}</v-col>
+                  <v-col cols="12" md="5">{{ product.explain }}</v-col>
+                  <v-col cols="6" md="1">
+                    <v-btn color="secondary">
+                      <v-icon v-on:click="editProduct(product)"> mdi-square-edit-outline</v-icon>
+                    </v-btn>
+                  </v-col>
                   <v-col v-for="(image_url, num) in product.image_urls" v-bind:key="num" cols="6" md="2">
                     <v-card>
-                          <v-avatar tile size="80">
-                            <v-img :src="image_url"></v-img>
-                          </v-avatar>
+                      <v-layout justify-center>
+                        <img :src="image_url" width="100%">
+                      </v-layout>
                     </v-card>
                   </v-col>
                 </v-row>
                 <v-row align="center" v-if="product.is_set === true ">
-                  <v-col cols="12" md="6">{{ product.explain }}</v-col>
+                  <v-col cols="12" md="5">{{ product.explain }}</v-col>
+                  <v-col cols="6" md="1">
+                    <v-btn color="secondary">
+                      <v-icon v-on:click="editProduct(product)"> mdi-square-edit-outline</v-icon>
+                    </v-btn>
+                  </v-col>
                   <v-col v-for="(set_product, num) in product.set_products" v-bind:key="num" cols="12" md="2">
                     <v-card>
                       <v-container><v-row>
@@ -193,11 +203,6 @@
               </v-container>
             </v-list-item-subtitle>
           </v-list-item-content>
-          <v-list-item-action>
-            <v-btn icon>
-            <v-icon v-on:click="editProduct(product)"> mdi-square-edit-outline</v-icon>
-            </v-btn icon>
-          </v-list-item-action>
         </v-list-item>
       </v-list>
     </div>
@@ -346,7 +351,12 @@
       downloadProducts(){
         axios.get(`api/products.csv/?search_keyword=${this.searchKeyword}`)
         .then(res => {
-          console.log(res)
+          var csv = res.data
+          let blob = new Blob([csv],{type: "text/csv"})
+          let link = document.createElement("a")
+          link.href = window.URL.createObjectURL(blob)
+          link.download = "result.csv"
+          link.click()
         })
       },
       toggle: function(index){

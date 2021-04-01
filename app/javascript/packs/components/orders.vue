@@ -102,25 +102,33 @@
                 <v-col v-if="order.flag" cols="12" md="4"><v-text-field label="memo" @change='updateOrderMemo(order)' v-model='order.memo.content'></v-text-field></v-col>
                 <v-col v-if="order.flag === false" cols="12" md="3"><v-text-field label="memo" @change='updateOrderMemo(order)' v-model='order.memo.content'></v-text-field></v-col>
                 <v-col cols="12" md="1">
-                  <v-btn class="mt-4" @click="toggle(index)"><v-icon> mdi-account-box </v-icon></v-btn>
-                  <v-btn class="mt-4" @click="deleteOrder(order)"><v-icon> mdi-delete </v-icon></v-btn>
+                  <v-btn class="mt-4" color="" @click="toggle(index)"><v-icon> mdi-account-box </v-icon></v-btn>
+                  <v-btn v-if="order.flag" class="mt-4" color="error" @click="deleteOrder(order)"><v-icon> mdi-delete </v-icon></v-btn>
                 </v-col>
 
               </v-row>
               <v-row align="center" v-for="(shipping_item, index) in order.shipping_items" v-bind:key="shipping_item.id">
-                <v-col cols="6" md="2">
-                  <v-list-item-avatar tile size="80">
-                    <v-img :src="shipping_item.first_image_url"></v-img>
-                  </v-list-item-avatar>
+                <v-col cols="6" md="1">
+                    <v-img size="80" :src="shipping_item.first_image_url"></v-img>
                 </v-col>
-                <v-col cols="6" md="6">
+                <v-col cols="6" md="3">
                   <v-text-field label="product_id" @change='updateOrder(order)' v-model='shipping_item.product_id'></v-text-field>
                 </v-col>
-                <v-col cols="6" md="2">
+                <v-col cols="3" md="1">
                   <v-text-field label="price" @change='updateOrder(order)' v-model='shipping_item.price'></v-text-field>
                 </v-col>
                 <v-col cols="3" md="1">
                   <v-text-field label="quantity" @change='updateOrder(order)' v-model='shipping_item.quantity'></v-text-field>
+                </v-col>
+                <v-col cols="6" md="2">
+                  <v-select return-object @change='updateOrder(order)' :items="deliveryAgents" item-text="name" item-value="id" label="delivery_agent" v-model='shipping_item.delivery_agent'></v-select>
+                </v-col>
+                <v-col cols="6" md="2">
+                  <v-text-field label="tracking_number" @change='updateOrder(order)' v-model='shipping_item.tracking_number'></v-text-field>
+                </v-col>
+                <v-col cols="3" md="1">
+                  <v-btn class="" @click="shipping_item.is_sent = false; updateOrder(order)" v-if="shipping_item.is_sent === true" color="" ><v-icon>mdi-undo</v-icon></v-btn>
+                  <v-btn class="" @click="shipping_item.is_sent = true; updateOrder(order)" v-if="shipping_item.is_sent !== true" color="primary"><v-icon>mdi-truck</v-icon></v-btn>
                 </v-col>
                 <v-col cols="3" md="1" v-if="order.shipping_items.length === index + 1 ">
                   <v-btn class="mt-4" @click="addShippingItem(order)" ><v-icon>mdi-plus</v-icon></v-btn>
@@ -203,6 +211,12 @@
           "発送待ち",  
           "配送済み",   
           "キャンセル",
+        ],
+        deliveryAgents: [
+          { id: 1, name: "クロネコヤマト"},
+          { id: 2, name: "佐川急便"},
+          { id: 3, name: "郵便局"},
+          { id: 4, name: "その他"},
         ],
         prefectures: [
           '北海道',
@@ -375,6 +389,9 @@
       },
       updateOrder(obj){
         this.formdata = new FormData
+        for(let shipping_item of obj.shipping_items){
+          shipping_item.delivery_agent_id = shipping_item.delivery_agent.id
+        }
         this.formdata.set('order[id]', obj.id);
         this.formdata.set('order[customer_name]', obj.customer_name);
         this.formdata.set('order[postal_code]', obj.postal_code);

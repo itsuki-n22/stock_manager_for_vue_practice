@@ -20,9 +20,21 @@
           </v-col>
           <v-col cols="10" @submit.prevent>
             <v-form ref="searchForm">
-              <v-text-field v-model="searchKeyword" label="検索" @change="searchOrders"> 
-                <template v-slot:append-outer> <v-btn color="primary"> <v-icon>mdi-magnify</v-icon> </v-btn> </template> 
-              </v-text-field>
+                <v-container>
+                  <v-row>
+                    <v-col cols="6" md="2">
+                      <v-select item-text="label" item-value="value" :items="searchTargets" label="検索対象" v-model='searchTarget'></v-select>
+                    </v-col>
+                    <v-col cols="6" md="2">
+                      <v-select item-text="label" item-value="value" :items="status" label="状態" v-model='searchStatus'></v-select>
+                    </v-col>
+                    <v-col cols="12" md="8">
+                      <v-text-field v-model="searchKeyword" label="検索" @change="searchOrders"> 
+                        <template v-slot:append-outer> <v-btn color="primary"> <v-icon>mdi-magnify</v-icon> </v-btn> </template> 
+                      </v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-container>
             </v-form>
           </v-col>
         </v-row>
@@ -212,6 +224,10 @@
           "配送済み",   
           "キャンセル",
         ],
+        searchTargets: [
+          "注文情報",  
+          "商品・追跡番号",  
+        ],
         deliveryAgents: [
           { id: 1, name: "クロネコヤマト"},
           { id: 2, name: "佐川急便"},
@@ -271,6 +287,8 @@
         orders: [],
         formdata: new FormData,
         searchKeyword: "",
+        searchStatus: "発送待ち",
+        searchTarget: "注文情報",
         newCustomerName: "",
         newPostalCode: "",
         newPrefecture: "",

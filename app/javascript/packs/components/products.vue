@@ -140,7 +140,10 @@
             <v-container>
               <v-row align="center" >
                 <v-col cols="12" md="3">
-                  <div class="font-weight-bold">{{ product.code }} </div>
+                  <v-badge content="set" v-if="product.is_set === true">
+                    <div class="font-weight-bold">{{ product.code }} </div>
+                  </v-badge>
+                  <div class="font-weight-bold" v-if="product.is_set !== true">{{ product.code }} </div>
                   <div>{{ product.alias_id["sku"]["code"] }} </div>
                   <div>{{ product.alias_id["asin"]["code"] }} </div>
                   <div>{{ product.alias_id["car_id"]["code"] }} </div>

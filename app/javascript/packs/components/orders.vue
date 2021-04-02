@@ -127,8 +127,8 @@
                   <v-text-field label="tracking_number" @change='updateOrder(order)' v-model='shipping_item.tracking_number'></v-text-field>
                 </v-col>
                 <v-col cols="3" md="1">
-                  <v-btn class="" @click="shipping_item.is_sent = false; updateOrder(order)" v-if="shipping_item.is_sent === true" color="" ><v-icon>mdi-undo</v-icon></v-btn>
-                  <v-btn class="" @click="shipping_item.is_sent = true; updateOrder(order)" v-if="shipping_item.is_sent !== true" color="primary"><v-icon>mdi-truck</v-icon></v-btn>
+                  <v-btn class="" @click="shippingItem(order, shipping_item)" v-if="shipping_item.is_sent === true" color="" ><v-icon>mdi-undo</v-icon></v-btn>
+                  <v-btn class="" @click="shippingItem(order, shipping_item)" v-if="shipping_item.is_sent !== true" color="primary" ><v-icon>mdi-truck</v-icon></v-btn>
                 </v-col>
                 <v-col cols="3" md="1" v-if="order.shipping_items.length === index + 1 ">
                   <v-btn class="mt-4" @click="addShippingItem(order)" ><v-icon>mdi-plus</v-icon></v-btn>
@@ -476,6 +476,15 @@
           //})
           //this.orders.splice(num,1)
         });
+      },
+      shippingItem(order, shipping_item){
+        if (shipping_item.is_sent === true){
+          if (window.confirm("本当にこの発送を取り消しますか?") === false ){ return true }
+          shipping_item.is_sent = false; 
+        } else {
+          shipping_item.is_sent = true; 
+        }
+        this.updateOrder(order)
       },
     }
   }

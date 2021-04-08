@@ -2,16 +2,17 @@
 #
 # Table name: alias_ids
 #
-#  id         :bigint           not null, primary key
-#  code       :string           not null
-#  code_type  :integer          not null
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  product_id :bigint           not null
+#  id               :bigint           not null, primary key
+#  code             :string           not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  alias_id_kind_id :bigint
+#  product_id       :bigint           not null
 #
 # Indexes
 #
-#  index_alias_ids_on_product_id  (product_id)
+#  index_alias_ids_on_alias_id_kind_id  (alias_id_kind_id)
+#  index_alias_ids_on_product_id        (product_id)
 #
 # Foreign Keys
 #

@@ -53,8 +53,8 @@ class Api::ProductsController < ApplicationController
       params.require(:product).permit(:id, :code, :name, :price, :explain, :is_set, :images)
     end
 
-    def alias_ids_params
-      params.require(:alias_ids).permit(:sku, :asin, :other_id, :car_id)
+    def alias_ids_params # TODO
+      params.require(:alias_ids).permit(*AliasIdKind.all.map(&:code).map(&:to_sym))
     end
   
     def check_set_products
@@ -90,10 +90,16 @@ class Api::ProductsController < ApplicationController
       end
     end
 
-    def save_alias_ids
-      AliasId.code_types.each do |code_type, code_num|
-        next if alias_ids_params[code_type] == nil
-        val = JSON.parse(alias_ids_params[code_type])
+    def save_alias_ids #TODO 
+      #AliasId.code_types.each do |code_type, code_num|
+      #  next if alias_ids_params[code_type] == nil
+      #  val = JSON.parse(alias_ids_params[code_type])
+      #  alias_id = @product.alias_ids.find(val["id"])
+      #  alias_id.update(code: val["code"])
+      #end
+      AliasIdKind.all.each do |alias_id_kind|
+        next if alias_ids_params[alias_id_kind.code] == nil
+        val = JSON.parse(alias_ids_params[alias_id_kind.code])
         alias_id = @product.alias_ids.find(val["id"])
         alias_id.update(code: val["code"])
       end

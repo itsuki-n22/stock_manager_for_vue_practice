@@ -144,9 +144,9 @@
                     <div class="font-weight-bold">{{ product.code }} </div>
                   </v-badge>
                   <div class="font-weight-bold" v-if="product.is_set !== true">{{ product.code }} </div>
-                  <div>{{ product.alias_id["sku"]["code"] }} </div>
-                  <div>{{ product.alias_id["asin"]["code"] }} </div>
-                  <div>{{ product.alias_id["car_id"]["code"] }} </div>
+                  <div v-for="(value,alias_id,index) in sorted_alias_ids(product.alias_id)">
+                    {{ alias_id + ": " + value["code"] }}
+                  </div>
                 </v-col>
                 <v-col cols="12" md="1"><v-text-field disabled filled label='RMB' v-model='product.price'></v-text-field> </v-col>
                 <v-col cols="12" md="5" >
@@ -222,10 +222,9 @@
                   <v-col cols="12"><v-text-field label="ID (CODE)*" required v-model="editCode"></v-text-field></v-col>
                   <v-col cols="12"><v-text-field label="Name" required v-model="editName"></v-text-field></v-col>
                   <v-col cols="12"><v-text-field label="price*" required v-model="editPrice"></v-text-field></v-col>
-                  <v-col cols="6"><v-text-field label="SKU" required v-model='editSKU["code"]'></v-text-field></v-col>
-                  <v-col cols="6"><v-text-field label="ASIN" v-model='editASIN["code"]'></v-text-field></v-col>
-                  <v-col cols="6"><v-text-field label="Car_id" v-model='editCarId["code"]'></v-text-field></v-col>
-                  <v-col cols="6"><v-text-field label="Other_id" v-model='editOtherId["code"]'></v-text-field></v-col>
+                  <v-col cols="6" v-for="alias_id_kind in sorted_alias_id_kind">
+                    <v-text-field :label="alias_id_kind" required v-model='editAliasIds[alias_id_kind]["code"]'></v-text-field>
+                  </v-col>
                   <v-col cols="12">
                     <v-textarea label="explain" v-model="editExplain"></v-textarea>
                   </v-col>
@@ -288,6 +287,8 @@
         createNewSetProductFlag: false,
         importProductsFlag: false,
         sorted_stock_places: [],
+        sorted_alias_id_kind: [],
+        editAliasIds: {},
         nameRules: [
           v => !!v || '入力してください',
           v => (v && v.length <= 50) || '50文字以下でお願いします。',
@@ -299,14 +300,26 @@
       .then(res => {
         this.products = res.data;
         console.log(this.products)
-        var first_stocks = this.products[0].stocks
+
+        var first_stocks = this.products[0].stocks // stock_place のソート
         this.sorted_stock_places = Object.keys(first_stocks).sort(
           function(a,b){
             first_stocks[a]["stock_place_id"] > first_stocks[b]["stock_place_id"]
           }
         )
+        var first_alias_ids = this.products[0].alias_id /// alias_id のソート
+        this.sorted_alias_id_kind = Object.keys(first_alias_ids).sort(
+          function(a,b){
+            first_alias_ids[a]["alias_id_kind_id"] > first_alias_ids[b]["alias_id_kind_id"]
+          }
+        )
+
+        let editAliasIds = {} /// editAliasIdsの設定
+        this.sorted_alias_id_kind.forEach(function(alias_id_kind){
+          editAliasIds[alias_id_kind] = ""
+        })
+        this.editAliasIds = editAliasIds
       });
-      
       this.hideAlert()
     },
     computed: {
@@ -321,6 +334,17 @@
           sorted_stocks[stock_place]["stock_place_id"] = obj[stock_place]["stock_place_id"]
         })
         return sorted_stocks
+      },
+      sorted_alias_ids: function(obj){
+        let sorted_alias_ids = {}
+        this.sorted_alias_id_kind.forEach(function(alias_id){
+          sorted_alias_ids[alias_id] = {}
+          sorted_alias_ids[alias_id]["id"] = obj[alias_id]["id"]
+          sorted_alias_ids[alias_id]["code"] = obj[alias_id]["code"]
+          sorted_alias_ids[alias_id]["alias_id_kind_id"] = obj[alias_id]["alias_id_kind_id"]
+          sorted_alias_ids[alias_id]["name"] = obj[alias_id]["name"]
+        })
+        return sorted_alias_ids
       },
       createProduct(){
         if (!this.$refs.form.validate()){
@@ -407,22 +431,25 @@
       toggleIndexProduct: function(index){
         this.indexProductFlag = (this.indexProductFlag ? false : true )
       },
-      editProduct(obj){
+      editProduct(product){
         this.formdata = new FormData
         this.editProductFlag = true
-        this.editProductId = obj.id
-        this.editCode = obj.code
-        this.editPrice = obj.price
-        this.editName = obj.name
-        this.editExplain = obj.explain
-        this.editSKU = obj.alias_id["sku"]
-        this.editASIN = obj.alias_id["asin"]
-        this.editCarId = obj.alias_id["car_id"]
-        this.editOtherId = obj.alias_id["other_id"]
-        if (obj.is_set === true) {
+        this.editProductId = product.id
+        this.editCode = product.code
+        this.editPrice = product.price
+        this.editName = product.name
+        this.editExplain = product.explain
+
+        let aliasIdsTmp = {} // this.sorted_~ 内で this.editAliasIdsは参照できない
+        Object.entries(this.sorted_alias_id_kind).forEach(function(alias_id){
+          aliasIdsTmp[alias_id[1]] = product["alias_id"][alias_id[1]] // TODO
+        })
+        this.editAliasIds = aliasIdsTmp
+
+        if (product.is_set === true) {
           this.editIsSetFlag = true
           this.editSetProducts = [];
-          for(let setProduct of obj.set_products){
+          for(let setProduct of product.set_products){
             this.editSetProducts.push(setProduct) 
           }
         } else {
@@ -454,10 +481,12 @@
         this.formdata.set('product[name]', this.editName);
         this.formdata.set('product[price]', this.editPrice);
         this.formdata.set('product[explain]', this.editExplain);
-        this.formdata.set('alias_ids[asin]', JSON.stringify(this.editASIN))
-        this.formdata.set('alias_ids[sku]', JSON.stringify(this.editSKU))
-        this.formdata.set('alias_ids[car_id]', JSON.stringify(this.editCarId))
-        this.formdata.set('alias_ids[other_id]', JSON.stringify(this.editOtherId))
+
+        let sorted_alias_id_kind = this.sorted_alias_id_kind // TODO this要不要
+        for (let i = 0; i < sorted_alias_id_kind.length; i++) {
+          this.formdata.set('alias_ids['+ sorted_alias_id_kind[i] + ']', JSON.stringify(this.editAliasIds[sorted_alias_id_kind[i]]))
+        }
+
         if (this.editIsSetFlag === true) {
           this.formdata.set('set_products', JSON.stringify(this.editSetProducts))
         }

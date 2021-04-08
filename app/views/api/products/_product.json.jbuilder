@@ -48,8 +48,10 @@ product.stocks.each do |stock|
 end  
 product.alias_ids.each do |alias_id|
   json.alias_id do 
-      json.set! alias_id.code_type do 
+      json.set! alias_id.alias_id_kind.code do 
       json.id alias_id.id
+      json.alias_id_kind_id alias_id.alias_id_kind_id
+      json.name alias_id.alias_id_kind.name
       json.code alias_id.code
       end
   end

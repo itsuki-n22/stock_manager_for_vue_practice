@@ -9,10 +9,7 @@ apt-get update && apt-get install -y yarn
 
 # Node.js
 RUN curl -sL https://deb.nodesource.com/setup_7.x | bash - && \
-apt-get install -y nodejs
-
-# vim
-RUN apt-get install -y vim
+apt-get install -y nodejs 
 
 RUN mkdir /myapp
 WORKDIR /myapp

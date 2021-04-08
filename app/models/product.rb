@@ -68,7 +68,7 @@ class Product < ApplicationRecord
       end
 
       product.alias_ids.each_with_index do |alias_id|
-        alias_id.code = alias_id_attributes(row)[alias_id.code_type] || ""
+        alias_id.code = alias_id_attributes(row)[alias_id.alias_id_kind.code] || ""
         alias_id.save
       end
       if product.is_set == false
@@ -90,11 +90,12 @@ class Product < ApplicationRecord
   end
   
   def self.alias_id_attributes(row)
-    row.to_hash.slice(*AliasId.code_types.keys)
+    row.to_hash.slice(*AliasIdKind.all.map(&:code))
   end
 
   def self.stock_attributes(row)
-    row.to_hash.slice(*Stock.places.keys)
+    #row.to_hash.slice(*Stock.places.keys)
+    row.to_hash.slice(*StockPlace.all.map(&:name))
   end
 
   def self.new_set_products(row)
@@ -108,11 +109,11 @@ class Product < ApplicationRecord
       end
     end
     if alias_ids.empty?
-      AliasId.code_types.each do |code_type, code_number|
-        if code_number == 0
-          alias_ids.create(code_type: code_type, code: code)
+      AliasIdKind.all.each do |alias_id_kind|
+        if alias_id_kind.id == 1
+          alias_ids.create(alias_id_kind_id: alias_id_kind.id, code: code)
         else
-          alias_ids.create(code_type: code_type, code: "")
+          alias_ids.create(alias_id_kind_id: alias_id_kind.id, code: "")
         end
       end
     end

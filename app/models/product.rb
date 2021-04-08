@@ -103,8 +103,8 @@ class Product < ApplicationRecord
 
   def init_params
     if stocks.empty?
-      Stock.places.each do |place, place_num|
-        stocks.create(place: place_num, quantity: 0)
+      StockPlace.all.each do |stock_place|
+        stocks.create(stock_place_id: stock_place.id, quantity: 0)
       end
     end
     if alias_ids.empty?

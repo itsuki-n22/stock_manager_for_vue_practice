@@ -154,12 +154,11 @@
                   <v-text-field label="memo" @change='updateProductMemo(product)' v-model='product.memo.content'></v-text-field>
                 </v-col>
                 
-                <v-col cols="4" md="1" v-if="product.is_set === false" ><v-text-field @change='updateStock(product.stocks["office"])' label="office" v-model='product.stocks["office"]["quantity"]'></v-text-field> </v-col>
-                <v-col cols="4" md="1" v-if="product.is_set === false" ><v-text-field @change='updateStock(product.stocks["fba"])' label="fba" v-model='product.stocks["fba"]["quantity"]'></v-text-field> </v-col>
-                <v-col cols="4" md="1" v-if="product.is_set === false" ><v-text-field @change='updateStock(product.stocks["china"])' label="china" v-model='product.stocks["china"]["quantity"]'></v-text-field> </v-col>
-                <v-col cols="4" md="1" v-if="product.is_set === true" ><v-text-field disabled label='office' v-model='product.stocks["office"]["quantity"]'></v-text-field> </v-col>
-                <v-col cols="4" md="1" v-if="product.is_set === true" ><v-text-field disabled label='fba' v-model='product.stocks["fba"]["quantity"]'></v-text-field> </v-col>
-                <v-col cols="4" md="1" v-if="product.is_set === true" ><v-text-field disabled label="china" v-model='product.stocks["china"]["quantity"]'></v-text-field> </v-col>
+                <v-col cols="4" md="1" v-for="(stock, place, index) in sorted_stocks(product.stocks)" :key="index">
+                  <v-text-field v-if="product.is_set !== true" @change='updateStock(stock)' :label="place" v-model='product.stocks[place]["quantity"]'></v-text-field> 
+                  <v-text-field disabled v-if="product.is_set === true" :label="place" v-model='product.stocks[place]["quantity"]'></v-text-field> 
+                </v-col>
+               
               </v-row>
             </v-container>
             <v-list-item-subtitle v-if="product.flag === true " style="white-space:pre-wrap;">
@@ -196,8 +195,9 @@
                         </v-col>
                         <v-col cols="auto">
                           <p>{{ set_product.code }} </p>
-                          <p>{{ "会社在庫：" + set_product.stocks["office"]["quantity"]}} </p>
-                          <p>{{ "FBA在庫：" + set_product.stocks["fba"]["quantity"]}} </p>
+                          <p v-for="stock_place in sorted_stock_places">
+                            {{ stock_place + ":" + set_product.stocks[stock_place]["quantity"] }}
+                          </p>
                         </v-col>
                       </v-row></v-container>
                     </v-card>
@@ -287,6 +287,7 @@
         newSetProducts: [ {code: "", quantity: 1 }],
         createNewSetProductFlag: false,
         importProductsFlag: false,
+        sorted_stock_places: [],
         nameRules: [
           v => !!v || '入力してください',
           v => (v && v.length <= 50) || '50文字以下でお願いします。',
@@ -298,10 +299,29 @@
       .then(res => {
         this.products = res.data;
         console.log(this.products)
+        var first_stocks = this.products[0].stocks
+        this.sorted_stock_places = Object.keys(first_stocks).sort(
+          function(a,b){
+            first_stocks[a]["stock_place_id"] > first_stocks[b]["stock_place_id"]
+          }
+        )
       });
+      
       this.hideAlert()
     },
+    computed: {
+    },
     methods: {
+      sorted_stocks: function(obj){
+        let sorted_stocks = {}
+        this.sorted_stock_places.forEach(function(stock_place){
+          sorted_stocks[stock_place] = {}
+          sorted_stocks[stock_place]["id"] = obj[stock_place]["id"]
+          sorted_stocks[stock_place]["quantity"] = obj[stock_place]["quantity"]
+          sorted_stocks[stock_place]["stock_place_id"] = obj[stock_place]["stock_place_id"]
+        })
+        return sorted_stocks
+      },
       createProduct(){
         if (!this.$refs.form.validate()){
           return false
@@ -319,6 +339,7 @@
         .then(res => {
           this.products.push(res.data)
           this.$refs.form.reset()
+          console.log(res)
         });
       },
       createSetProduct(){

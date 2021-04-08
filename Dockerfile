@@ -11,6 +11,9 @@ apt-get update && apt-get install -y yarn
 RUN curl -sL https://deb.nodesource.com/setup_7.x | bash - && \
 apt-get install -y nodejs
 
+# vim
+RUN apt-get install -y vim
+
 RUN mkdir /myapp
 WORKDIR /myapp
 COPY Gemfile /myapp/Gemfile

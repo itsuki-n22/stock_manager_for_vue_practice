@@ -21,12 +21,12 @@ if product.is_set == true
       json.first_image_url item.first_image_url
       json.stocks do 
         item.stocks.each do |set_stock|
-          if available_stocks[set_stock.place] 
-            available_stocks[set_stock.place] = set_stock.quantity if available_stocks[set_stock.place] > set_stock.quantity
+          if available_stocks[set_stock.stock_place.name] 
+            available_stocks[set_stock.stock_place.name] = set_stock.quantity if available_stocks[set_stock.stock_place.name] > set_stock.quantity
           else
-            available_stocks[set_stock.place] = set_stock.quantity
+            available_stocks[set_stock.stock_place.name] = set_stock.quantity
           end
-          json.set! set_stock.place do
+          json.set! set_stock.stock_place.name do
             json.quantity set_stock.quantity
           end
         end
@@ -37,11 +37,12 @@ if product.is_set == true
   json.price set_price
 end
 product.stocks.each do |stock|
-  json.stocks do 
-    json.set! stock.place do 
+  json.stocks do  # is_set でも現状ではDBにstockが登録されている。それがなくてもOKになるようにしよう TODO
+    json.set! stock.stock_place.name do 
     json.id stock.id
+    json.stock_place_id stock.stock_place.id
     json.quantity stock.quantity
-    json.quantity available_stocks[stock.place] if product.is_set == true
+    json.quantity available_stocks[stock.stock_place.name] if product.is_set == true
     end
   end
 end  

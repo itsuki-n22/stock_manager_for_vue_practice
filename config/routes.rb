@@ -15,6 +15,7 @@ Rails.application.routes.draw do
       post :import, on: :collection
     end
     resources :platforms, only: %i[index] 
+    resources :delivery_agents, only: %i[index] 
     resources :stocks, only: %i[update] 
     resources :product_memos, only: %i[create update] 
     resources :order_memos, only: %i[create update] 

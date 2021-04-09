@@ -220,10 +220,6 @@
           "商品・追跡番号",  
         ],
         deliveryAgents: [
-          { id: 1, name: "クロネコヤマト"},
-          { id: 2, name: "佐川急便"},
-          { id: 3, name: "郵便局"},
-          { id: 4, name: "その他"},
         ],
         prefectures: [
           '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県',
@@ -285,6 +281,11 @@
       .then(res => {
         this.platforms = res.data;
         console.log(this.platforms)
+      });
+      axios.get(`api/delivery_agents.json`)
+      .then(res => {
+        this.deliveryAgents = res.data
+        console.log(res.data)
       });
       this.hideAlert()
     },

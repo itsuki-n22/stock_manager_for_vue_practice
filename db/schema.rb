@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_08_083223) do
+ActiveRecord::Schema.define(version: 2021_04_09_021730) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -59,6 +59,21 @@ ActiveRecord::Schema.define(version: 2021_04_08_083223) do
     t.bigint "alias_id_kind_id"
     t.index ["alias_id_kind_id"], name: "index_alias_ids_on_alias_id_kind_id"
     t.index ["product_id"], name: "index_alias_ids_on_product_id"
+  end
+
+  create_table "bulk_shipments", force: :cascade do |t|
+    t.string "name", null: false
+    t.bigint "delivery_agent_id"
+    t.integer "delivery_charge"
+    t.string "tracking_number"
+    t.integer "phase", default: 0
+    t.integer "from", null: false
+    t.integer "to", null: false
+    t.date "ship_date"
+    t.date "arrived_date"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["delivery_agent_id"], name: "index_bulk_shipments_on_delivery_agent_id"
   end
 
   create_table "delivery_agents", force: :cascade do |t|
@@ -201,6 +216,7 @@ ActiveRecord::Schema.define(version: 2021_04_08_083223) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "alias_ids", "products"
+  add_foreign_key "bulk_shipments", "delivery_agents"
   add_foreign_key "order_memos", "orders"
   add_foreign_key "orders", "platforms"
   add_foreign_key "product_memos", "products"

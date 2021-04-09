@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resources :users
   resources :products, only: %i[index show create]
   resources :orders, only: %i[index]
+  resources :bulk_shipments, only: %i[index]
   devise_for :users
 
   namespace :api do
@@ -12,6 +13,9 @@ Rails.application.routes.draw do
       post :import, on: :collection
     end
     resources :orders, only: %i[create update destroy show index] do
+      post :import, on: :collection
+    end
+    resources :bulk_shipments, only: %i[create update destroy show index] do
       post :import, on: :collection
     end
     resources :platforms, only: %i[index] 

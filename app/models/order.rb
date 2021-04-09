@@ -9,25 +9,30 @@
 #  order_number    :string           not null
 #  phone_country   :integer
 #  phone_number    :string
-#  platform        :integer          default("不明"), not null
 #  postal_code     :string
 #  prefecture      :integer          default("北海道"), not null
 #  status          :integer          default("注文直後"), not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  platform_id     :bigint
 #
 # Indexes
 #
 #  index_orders_on_order_number  (order_number)
+#  index_orders_on_platform_id   (platform_id)
 #  index_orders_on_status        (status)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (platform_id => platforms.id)
 #
 class Order < ApplicationRecord
   validates :order_number, uniqueness: true
+  belongs_to :platform
   has_one :memo, class_name: 'OrderMemo', dependent: :destroy
-  has_one :delivery_agents, class_name: 'DeliveryAgent'
+  has_one :delivery_agents, class_name: 'DeliveryAgent' # why s? TODO
   has_many :shipping_items, dependent: :destroy
   enum status: ["注文直後","入金待ち","発送待ち", "配送済み", "キャンセル"]
-  enum platform: ["不明", "ヤフオク1","ヤフオク2" ,"楽天", "Amazon", "Wowma", "Base", "Qoo10"]
   enum prefecture: [
           '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県',
           '埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県',

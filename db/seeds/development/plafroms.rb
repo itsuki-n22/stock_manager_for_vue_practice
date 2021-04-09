@@ -1,0 +1,8 @@
+Platform.create!( name: "Amazon")
+Platform.create!( name: "楽天")
+Platform.create!( name: "ヤフオク1")
+Platform.create!( name: "ヤフオク2")
+Platform.create!( name: "AuPayマーケット")
+Platform.create!( name: "qoo10")
+Platform.create!( name: "base")
+Platform.create!( name: "mercari")

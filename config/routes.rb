@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     resources :orders, only: %i[create update destroy show index] do
       post :import, on: :collection
     end
+    resources :platforms, only: %i[index] 
     resources :stocks, only: %i[update] 
     resources :product_memos, only: %i[create update] 
     resources :order_memos, only: %i[create update] 

@@ -61,7 +61,7 @@
         <h2> 注文の登録 </h2>
         <v-row>
           <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="order_id" v-model='newOrderNumber'></v-text-field></v-col>
-          <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" :items="platforms" label="platform" v-model='newPlatform'></v-select></v-col>
+          <v-col cols="12" md="2"><v-select item-text="name" item-value="id" :items="platforms" label="platform" v-model='newPlatform'></v-select></v-col>
           <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="postal_code" v-model='newPostalCode'></v-text-field></v-col>
           <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" :items="prefectures" label="prefecture" v-model='newPrefecture'></v-select></v-col>
           <v-col cols="12" md="4"><v-text-field :rules="nameRules" label="address" v-model='newAddress'></v-text-field></v-col>
@@ -103,7 +103,7 @@
             <v-container>
               <v-row align="center" >
                 <v-col cols="12" md="2"><v-text-field @change='updateOrder(order)' label="order_id" v-model='order.order_number'></v-text-field></v-col>
-                <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" @change='updateOrder(order)' :items="platforms" label="platform" v-model='order.platform'></v-select></v-col>
+                <v-col cols="12" md="2"><v-select return-object item-text="name" item-value="id" @change='updateOrder(order)' :items="platforms" label="platform" v-model='order.platform'></v-select></v-col>
                 <v-col v-if="order.flag" cols="12" md="2"><v-text-field @change='updateOrder(order)' label="postal_code" v-model='order.postal_code'></v-text-field></v-col>
                 <v-col v-if="order.flag" cols="12" md="2"><v-select return-object item-text="label" item-value="value" @change='updateOrder(order)' :items="prefectures" label="prefecture" v-model='order.prefecture'></v-select></v-col>
                 <v-col v-if="order.flag" cols="12" md="4"><v-text-field @change='updateOrder(order)' label="address" v-model='order.address'></v-text-field></v-col>
@@ -207,16 +207,7 @@
   export default {
     data () {
       return {
-        platforms: [
-         'Amazon',
-         '楽天', 
-         'ヤフオク1',
-         'ヤフオク2',
-         'Wowma',
-         'Qoo10',
-         'Base',
-         '不明', 
-        ],
+        platforms: [],
         status: [
           "注文直後",  
           "入金待ち",  
@@ -235,51 +226,14 @@
           { id: 4, name: "その他"},
         ],
         prefectures: [
-          '北海道',
-          '青森県',
-          '岩手県',
-          '宮城県',
-          '秋田県',
-          '山形県',
-          '福島県',
-          '茨城県',
-          '栃木県',
-          '群馬県',
-          '埼玉県',
-          '千葉県',
-          '東京都',
-          '神奈川県',
-          '新潟県',
-          '富山県',
-          '石川県',
-          '福井県',
-          '山梨県',
-          '長野県',
-          '岐阜県',
-          '静岡県',
-          '愛知県',
-          '三重県',
-          '滋賀県',
-          '京都府',
-          '大阪府',
-          '兵庫県',
-          '奈良県',
-          '和歌山県',
-          '鳥取県',
-          '島根県',
-          '岡山県',
-          '広島県',
-          '山口県',
-          '徳島県',
-          '香川県',
-          '愛媛県',
-          '高知県',
-          '福岡県',
-          '佐賀県',
-          '長崎県',
-          '熊本県',
-          '大分県',
-          '宮崎県',
+          '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県',
+          '茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県',
+          '新潟県','富山県','石川県','福井県','山梨県','長野県',
+          '岐阜県','静岡県','愛知県','三重県',
+          '滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県',
+          '鳥取県','島根県','岡山県','広島県','山口県',
+          '徳島県','香川県','愛媛県','高知県',
+          '福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県',
           '鹿児島県',
           '沖縄県'
         ],
@@ -326,7 +280,11 @@
       .then(res => {
         this.orders = res.data;
         console.log(res)
-        console.log(this.orders)
+      });
+      axios.get(`api/platforms.json`)
+      .then(res => {
+        this.platforms = res.data;
+        console.log(this.platforms)
       });
       this.hideAlert()
     },
@@ -350,7 +308,7 @@
           this.$refs.form.reset()
         });
       },
-      createSetOrder(){
+      createSetOrder(){ // TODO change name
         if (!this.$refs.createForm.validate()){
           return false
         };
@@ -361,7 +319,7 @@
         this.formdata.set('order[address]', this.newAddress);
         this.formdata.set('order[phone_number]', this.newPhoneNumber);
         this.formdata.set('order[order_number]', this.newOrderNumber);
-        this.formdata.set('order[platform]', this.newPlatform);
+        this.formdata.set('order[platform_id]', this.newPlatform);// plaftform を platform_idとしている
         this.formdata.set('order[delivery_charge]', this.newDeliveryCharge);
         this.formdata.set('order[status]', this.newStatus);
         this.formdata.set('shipping_items', JSON.stringify(this.newOrderProducts))
@@ -417,7 +375,7 @@
         this.formdata.set('order[address]', obj.address);
         this.formdata.set('order[phone_number]', obj.phone_number);
         this.formdata.set('order[order_number]', obj.order_number);
-        this.formdata.set('order[platform]', obj.platform);
+        this.formdata.set('order[platform_id]', obj.platform.id);// plaftform を platform_idとしている
         this.formdata.set('order[delivery_charge]', obj.delivery_charge);
         this.formdata.set('order[status]', obj.status);
         this.formdata.set('shipping_items', JSON.stringify(obj.shipping_items))

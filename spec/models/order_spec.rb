@@ -9,17 +9,22 @@
 #  order_number    :string           not null
 #  phone_country   :integer
 #  phone_number    :string
-#  platform        :integer          default("不明"), not null
 #  postal_code     :string
 #  prefecture      :integer          default("北海道"), not null
 #  status          :integer          default("注文直後"), not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  platform_id     :bigint
 #
 # Indexes
 #
 #  index_orders_on_order_number  (order_number)
+#  index_orders_on_platform_id   (platform_id)
 #  index_orders_on_status        (status)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (platform_id => platforms.id)
 #
 require 'rails_helper'
 

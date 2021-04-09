@@ -46,8 +46,8 @@ class Api::OrdersController < ApplicationController
 
   private
     def order_params
-      params.require(:order).permit(:order_number, :customer_name, :postal_code, :prefecture,
-    :phone_country, :phone_number, :delivery_charge, :platform, :status, :address, :id)
+      tmp_params = params.require(:order).permit(:order_number, :customer_name, :postal_code, :prefecture,
+    :phone_country, :phone_number, :delivery_charge, :platform_id, :status, :address, :id)
     end
 
     def shipping_items_with_check_validation
@@ -55,7 +55,7 @@ class Api::OrdersController < ApplicationController
 
       if shipping_items && shipping_items.empty? == false
         shipping_items.map do |shipping_item|
-          item = Product.find_by(code: shipping_item["product_id"])
+          p item = Product.find_by(code: shipping_item["product_id"])
           raise RuntimeError, "set product の code が存在しません" if item.nil?
           shipping_item["product_id"] = item.id
           shipping_item

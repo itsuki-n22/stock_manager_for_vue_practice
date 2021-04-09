@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_08_055720) do
+ActiveRecord::Schema.define(version: 2021_04_08_083223) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -85,12 +85,21 @@ ActiveRecord::Schema.define(version: 2021_04_08_055720) do
     t.integer "phone_country"
     t.string "phone_number"
     t.integer "delivery_charge"
-    t.integer "platform", default: 0, null: false
     t.integer "status", default: 0, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "platform_id"
     t.index ["order_number"], name: "index_orders_on_order_number"
+    t.index ["platform_id"], name: "index_orders_on_platform_id"
     t.index ["status"], name: "index_orders_on_status"
+  end
+
+  create_table "platforms", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "url"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_platforms_on_name", unique: true
   end
 
   create_table "product_memos", force: :cascade do |t|
@@ -193,6 +202,7 @@ ActiveRecord::Schema.define(version: 2021_04_08_055720) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "alias_ids", "products"
   add_foreign_key "order_memos", "orders"
+  add_foreign_key "orders", "platforms"
   add_foreign_key "product_memos", "products"
   add_foreign_key "shipping_items", "delivery_agents"
   add_foreign_key "shipping_items", "orders"

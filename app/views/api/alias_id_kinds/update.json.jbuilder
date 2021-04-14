@@ -1,0 +1,1 @@
+json.partial! @alias_id_kind

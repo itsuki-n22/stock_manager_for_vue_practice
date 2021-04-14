@@ -14,5 +14,5 @@
 #
 class Platform < ApplicationRecord
   has_many :orders
-  validates :name, uniqueness: true
+  validates :name, uniqueness: true, presence: true
 end

@@ -8,5 +8,6 @@
 #  updated_at :datetime         not null
 #
 class StockPlace < ApplicationRecord
-    has_many :stocks
+  has_many :stocks
+  validates :name, presence: :true, uniqueness: true
 end

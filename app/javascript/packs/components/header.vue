@@ -27,6 +27,10 @@
         <v-icon>mdi-truck</v-icon>
       </v-btn>
 
+      <v-btn icon href="/configs/">
+        <v-icon>mdi-cogs</v-icon>
+      </v-btn>
+
       <v-btn icon>
         <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>

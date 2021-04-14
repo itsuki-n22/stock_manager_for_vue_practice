@@ -19,11 +19,8 @@ class Api::BulkShipmentsController < ApplicationController
     shipping_items.each do |shipping_item|
       shipping_item = shipping_item.slice(*BulkShippingItem.column_names)
       if shipping_item["id"] && BulkShippingItem.find(shipping_item["id"])  #update
-        p "------------"
-        p shipping_item
         @bulk_shipment.bulk_shipping_items.find(shipping_item["id"]).update(shipping_item)
       else  #create
-        p shipping_item
         @bulk_shipment.bulk_shipping_items.build(shipping_item).save
       end
     end
@@ -54,7 +51,7 @@ class Api::BulkShipmentsController < ApplicationController
 
       if shipping_items && shipping_items.empty? == false
         shipping_items.map do |shipping_item|
-          p item = Product.find_by(code: shipping_item["product_id"])
+          item = Product.find_by(code: shipping_item["product_id"])
           raise RuntimeError, "set product の code が存在しません" if item.nil?
           shipping_item["product_id"] = item.id
           shipping_item

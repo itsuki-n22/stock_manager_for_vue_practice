@@ -10,4 +10,5 @@
 #
 class DeliveryAgent < ApplicationRecord
   has_many :shipping_items
+  validates :name, presence: true, uniqueness: true
 end

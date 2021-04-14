@@ -5,6 +5,7 @@ import header1 from './components/header.vue'
 import todo_list from './components/todo_list.vue'
 import products from './components/products.vue'
 import orders from './components/orders.vue'
+import bulk_shipments from './components/bulk_shipments.vue'
 
 Vue.use(Vuetify); // 追加
 const vuetify = new Vuetify(); // 追加
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     data: {
       message: "Can you say hello?"
     },
-    components: { header1, todo_list, products, orders }
+    components: { header1, todo_list, products, bulk_shipments, orders }
   })
 })
 

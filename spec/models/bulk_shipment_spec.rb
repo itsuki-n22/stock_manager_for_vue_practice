@@ -7,7 +7,7 @@
 #  delivery_charge   :integer
 #  from              :integer          not null
 #  name              :string           not null
-#  phase             :integer          default(0)
+#  phase             :integer          default("preparing")
 #  ship_date         :date
 #  to                :integer          not null
 #  tracking_number   :string

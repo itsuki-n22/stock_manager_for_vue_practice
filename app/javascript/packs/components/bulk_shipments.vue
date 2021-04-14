@@ -23,10 +23,7 @@
                 <v-container>
                   <v-row>
                     <v-col cols="6" md="2">
-                      <v-select item-text="label" item-value="value" :items="searchTargets" label="検索対象" v-model='searchTarget'></v-select>
-                    </v-col>
-                    <v-col cols="6" md="2">
-                      <v-select item-text="label" item-value="value" :items="status" label="状態" v-model='searchStatus'></v-select>
+                      <v-select item-text="name" item-value="name" :items="phases" label="状態" v-model='searchStatus'></v-select>
                     </v-col>
                     <v-col cols="12" md="8">
                       <v-text-field v-model="searchKeyword" label="検索" @change="searchBulkShipments"> 
@@ -40,7 +37,6 @@
         </v-row>
       </v-container>
     </div>
-    <!-- 
     <v-form ref="importBulkShipmentsForm">
       <v-container v-if="importBulkShipmentsFlag === true">
         <h2> CSVで注文登録 </h2>
@@ -55,44 +51,18 @@
         </v-row>
       </v-container>
     </v-form>
-    -->
-    <!-- 
     <v-form ref="createForm">
       <v-container v-if="createNewBulkShipmentFlag === true">
-        <h2> 注文の登録 </h2>
+        <h2> 発送の登録 </h2>
         <v-row>
-          <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="bulkShipment_id" v-model='newBulkShipmentNumber'></v-text-field></v-col>
-          <v-col cols="12" md="2"><v-select item-text="name" item-value="id" :items="platforms" label="platform" v-model='newPlatform'></v-select></v-col>
-          <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="postal_code" v-model='newPostalCode'></v-text-field></v-col>
-          <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" :items="prefectures" label="prefecture" v-model='newPrefecture'></v-select></v-col>
-          <v-col cols="12" md="4"><v-text-field :rules="nameRules" label="address" v-model='newAddress'></v-text-field></v-col>
-          <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="customer_name" v-model='newCustomerName'></v-text-field></v-col>
-          <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="phone_number" v-model='newPhoneNumber'></v-text-field></v-col>
-          <v-col cols="12" md="1"><v-text-field  label="delivery_cost" v-model='newDeliveryCharge'></v-text-field></v-col>
-          <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" :items="status" label="status" v-model='newStatus'></v-select></v-col>
-          <v-col cols="12" md="1">
-            <v-btn class="mr-4" @click="createSetBulkShipment" color="primary"><v-icon>mdi-plus</v-icon></v-btn>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12" md="2" v-for="(newBulkShipmentProduct, index) in newBulkShipmentProducts">
-            <v-text-field
-              v-model="newBulkShipmentProduct.product_id"
-              label="product_id"
-              :rules="nameRules"
-            ></v-text-field>
-            <v-text-field
-              v-model="newBulkShipmentProduct.price"
-              label="price"
-            ></v-text-field>
-            <v-text-field
-              v-model="newBulkShipmentProduct.quantity"
-              label="quantity"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" md="1">
-            <v-btn class="mt-4" @click="addSetBulkShipment" ><v-icon>mdi-plus</v-icon></v-btn>
-            <v-btn class="mt-4" @click="deleteSetBulkShipment" ><v-icon>mdi-minus</v-icon></v-btn>
+          <v-col cols="12" md="2"><v-text-field :rules="nameRules" label="発送名" v-model='newName'></v-text-field></v-col>
+          <v-col cols="12" md="2"><v-select item-text="name" item-value="id" :items="deliveryAgents" label="配送業者" v-model='newDeliveryAgent'></v-select></v-col>
+          <v-col cols="6" md="2"><v-select item-text="name" item-value="id" :items="stockPlaces" label="出発地" v-model='newDeparture'></v-select></v-col>
+          <v-col cols="6" md="2"><v-select item-text="name" item-value="id" :items="stockPlaces" label="到着地" v-model='newDestination'></v-select></v-col>
+          <v-col cols="12" md="2"><v-text-field label="追跡番号 number" v-model='newTrackingNumber'></v-text-field></v-col>
+          <v-col cols="6" md="1"><v-text-field  label="送料" v-model='newDeliveryCharge'></v-text-field></v-col>
+          <v-col cols="6" md="1">
+            <v-btn class="mr-4" @click="createBulkShipment" color="primary"><v-icon>mdi-plus</v-icon></v-btn>
           </v-col>
         </v-row>
       </v-container>
@@ -103,24 +73,100 @@
           <v-list-item-content>
             <v-container>
               <v-row align="center" >
-                <v-col cols="12" md="2"><v-text-field @change='updateBulkShipment(bulkShipment)' label="bulkShipment_id" v-model='bulkShipment.bulkShipment_number'></v-text-field></v-col>
-                <v-col cols="12" md="2"><v-select return-object item-text="name" item-value="id" @change='updateBulkShipment(bulkShipment)' :items="platforms" label="platform" v-model='bulkShipment.platform'></v-select></v-col>
-                <v-col v-if="bulkShipment.flag" cols="12" md="2"><v-text-field @change='updateBulkShipment(bulkShipment)' label="postal_code" v-model='bulkShipment.postal_code'></v-text-field></v-col>
-                <v-col v-if="bulkShipment.flag" cols="12" md="2"><v-select return-object item-text="label" item-value="value" @change='updateBulkShipment(bulkShipment)' :items="prefectures" label="prefecture" v-model='bulkShipment.prefecture'></v-select></v-col>
-                <v-col v-if="bulkShipment.flag" cols="12" md="4"><v-text-field @change='updateBulkShipment(bulkShipment)' label="address" v-model='bulkShipment.address'></v-text-field></v-col>
-                <v-col cols="12" md="2"><v-text-field @change='updateBulkShipment(bulkShipment)' label="customer_name" v-model='bulkShipment.customer_name'></v-text-field></v-col>
-                <v-col v-if="bulkShipment.flag" cols="12" md="2"><v-text-field @change='updateBulkShipment(bulkShipment)' label="phone_number" v-model='bulkShipment.phone_number'></v-text-field></v-col>
-                <v-col v-if="bulkShipment.flag" cols="12" md="1"><v-text-field @change='updateBulkShipment(bulkShipment)' label="delivery_cost" v-model='bulkShipment.delivery_charge'></v-text-field></v-col>
-                <v-col cols="12" md="2"><v-select return-object item-text="label" item-value="value" @change='updateBulkShipment(bulkShipment)' :items="status" label="status" v-model='bulkShipment.status'></v-select></v-col>
-                <v-col v-if="bulkShipment.flag" cols="12" md="4"><v-text-field label="memo" @change='updateBulkShipmentMemo(bulkShipment)' v-model='bulkShipment.memo.content'></v-text-field></v-col>
-                <v-col v-if="bulkShipment.flag === false" cols="12" md="3"><v-text-field label="memo" @change='updateBulkShipmentMemo(bulkShipment)' v-model='bulkShipment.memo.content'></v-text-field></v-col>
-                <v-col cols="12" md="1">
-                  <v-btn class="mt-4" color="" @click="toggle(index)"><v-icon> mdi-account-box </v-icon></v-btn>
-                  <v-btn v-if="bulkShipment.flag" class="mt-4" color="error" @click="deleteBulkShipment(bulkShipment)"><v-icon> mdi-delete </v-icon></v-btn>
+                <v-col cols="12" md="4"><v-text-field @change='updateBulkShipment(bulkShipment)' label="bulkShipment_id" v-model='bulkShipment.name'></v-text-field></v-col>
+                <v-col cols="6" md="2"><v-select item-text="name" item-value="id" :items="stockPlaces" label="出発地" v-model='bulkShipment.from'></v-select></v-col>
+                <v-col cols="6" md="2"><v-select item-text="name" item-value="id" :items="stockPlaces" label="到着地" v-model='bulkShipment.to'></v-select></v-col>
+                <v-col cols="12" md="2"><v-select item-text="name" item-value="id" @change='updateBulkShipment(bulkShipment)' :items="deliveryAgents" label="配送業者" v-model='bulkShipment.delivery_agent_id'></v-select></v-col>
+                <v-col cols="12" md="2"><v-text-field @change='updateBulkShipment(bulkShipment)' label="追跡番号" v-model='bulkShipment.tracking_number'></v-text-field></v-col>
+
+              </v-row>
+              <v-row align="center" >
+                <v-col cols="6" md="3">
+                  <v-menu v-model="bulkShipment.ship_date_flag"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="bulkShipment.ship_date"
+                        label="発送日"
+                        prepend-icon="mdi-calendar"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      no-title
+                      v-model="bulkShipment.ship_date"
+                      @input="bulkShipment.ship_date_flag = false"
+                      @change="updateBulkShipment(bulkShipment)"
+                    ></v-date-picker>
+                  </v-menu>
+                </v-col>
+                <v-col cols="6" md="3">
+                  <v-menu v-model="bulkShipment.arrived_date_flag"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="bulkShipment.arrived_date"
+                        label="到着日"
+                        prepend-icon="mdi-calendar"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      no-title
+                      v-model="bulkShipment.arrived_date"
+                      @input="bulkShipment.arrived_date_flag = false"
+                      @change="updateBulkShipment(bulkShipment)"
+                    ></v-date-picker>
+                  </v-menu>
+                </v-col>
+                <v-col cols="3" md="2"><v-text-field @change='updateBulkShipment(bulkShipment)' label="送料" v-model='bulkShipment.delivery_charge'></v-text-field></v-col>
+                <v-col cols="6" md="3"><v-select color="#BBDEFB" solo background-color="#BBDEFB" item-text="name" item-value="name" :items="phases" label="状態" v-model='bulkShipment.phase'></v-select></v-col>
+                <v-col cols="3" md="1" mb-4>
+                  <v-btn @click="toggle(index)"><v-icon> mdi-details </v-icon></v-btn>
                 </v-col>
 
               </v-row>
+              <v-row align="center" v-if="bulkShipment.flag">
+                <v-col cols="12" md="2">
+                  <h3>商品を追加する</h3>
+                </v-col>
+                <v-col cols="6" md="3">
+                  <v-text-field label="product_id" v-model='bulkShipment["newProductId"]'></v-text-field>
+                </v-col>
+                <v-col cols="3" md="1">
+                  <v-text-field label="price" v-model='bulkShipment["newPrice"]'></v-text-field>
+                </v-col>
+                <v-col cols="3" md="1">
+                  <v-text-field label="quantity" v-model='bulkShipment["newQuantity"]'></v-text-field>
+                </v-col>
+                <v-col cols="12" md="1">
+                  <v-btn class="" @click="addShippingItem(bulkShipment)" color="primary" ><v-icon>mdi-plus</v-icon></v-btn>
+                </v-col>
+                <v-col cols="6" md="3">
+                  <h3>この注文を削除する</h3>
+                </v-col>
+                <v-col cols="6" md="1">
+                  <v-btn v-if="bulkShipment.flag" color="error" @click="deleteBulkShipment(bulkShipment)"><v-icon> mdi-delete </v-icon></v-btn>
+                </v-col>
+              </v-row>
+
+              <v-row v-if="bulkShipment.flag"><v-col>
               <v-row align="center" v-for="(shipping_item, index) in bulkShipment.shipping_items" v-bind:key="shipping_item.id">
+                <v-spacer />
                 <v-col cols="6" md="1">
                     <v-img size="80" :src="shipping_item.first_image_url"></v-img>
                 </v-col>
@@ -133,21 +179,12 @@
                 <v-col cols="3" md="1">
                   <v-text-field label="quantity" @change='updateBulkShipment(bulkShipment)' v-model='shipping_item.quantity'></v-text-field>
                 </v-col>
-                <v-col cols="6" md="2">
-                  <v-select return-object @change='updateBulkShipment(bulkShipment)' :items="deliveryAgents" item-text="name" item-value="id" label="delivery_agent" v-model='shipping_item.delivery_agent'></v-select>
-                </v-col>
-                <v-col cols="6" md="2">
-                  <v-text-field label="tracking_number" @change='updateBulkShipment(bulkShipment)' v-model='shipping_item.tracking_number'></v-text-field>
-                </v-col>
                 <v-col cols="3" md="1">
-                  <v-btn class="" @click="shippingItem(bulkShipment, shipping_item)" v-if="shipping_item.is_sent === true" color="" ><v-icon>mdi-undo</v-icon></v-btn>
-                  <v-btn class="" @click="shippingItem(bulkShipment, shipping_item)" v-if="shipping_item.is_sent !== true" color="primary" ><v-icon>mdi-truck</v-icon></v-btn>
+                  <v-btn class="mt-4" @click="deleteShippingItem(bulkShipment, shipping_item.id)" ><v-icon>mdi-delete</v-icon></v-btn>
                 </v-col>
-                <v-col cols="3" md="1" v-if="bulkShipment.shipping_items.length === index + 1 ">
-                  <v-btn class="mt-4" @click="addShippingItem(bulkShipment)" ><v-icon>mdi-plus</v-icon></v-btn>
-                  <v-btn class="mt-4" v-if="index !== 0" @click="deleteShippingItem(bulkShipment)" ><v-icon>mdi-minus</v-icon></v-btn>
-                </v-col>
+                <v-spacer />
               </v-row>
+              </v-col></v-row>
             </v-container>
           </v-list-item-content>
           <v-list-item-action>
@@ -155,7 +192,6 @@
         </v-list-item>
       </v-list>
     </div>
-    -->
     <!-- 
     <v-container>
       <v-row justify="center">
@@ -210,45 +246,30 @@
     data () {
       return {
         platforms: [],
-        status: [
-          "注文直後",  
-          "入金待ち",  
-          "発送待ち",  
-          "配送済み",   
-          "キャンセル",
-        ],
+        stockPlaces: [],
+        phases: [],
         searchTargets: [
           "注文情報",  
           "商品・追跡番号",  
         ],
         deliveryAgents: [
         ],
-        prefectures: [
-          '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県',
-          '茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県',
-          '新潟県','富山県','石川県','福井県','山梨県','長野県',
-          '岐阜県','静岡県','愛知県','三重県',
-          '滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県',
-          '鳥取県','島根県','岡山県','広島県','山口県',
-          '徳島県','香川県','愛媛県','高知県',
-          '福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県',
-          '鹿児島県',
-          '沖縄県'
-        ],
+        today: new Date().toISOString().substr(0, 10),
         alert: false,
         bulkShipments: [],
         formdata: new FormData,
         searchKeyword: "",
         searchStatus: "発送待ち",
-        searchTarget: "注文情報",
-        newCustomerName: "",
+        shipDateFlag: false,
+        newDeparture: "",
+        newDestination: "",
+        newDeliveryAgent: "",
         newPostalCode: "",
-        newPrefecture: "",
-        newAddress: "",
-        newPhoneNumber: "",
+        newName: "",
+        newTrackingNumber: "",
         newBulkShipmentNumber: "",
         newPlatform: "不明",
-        newDeliveryCharge: 598,
+        newDeliveryCharge: 0,
         newStatus: "注文直後",
         editBulkShipmentId: "",
         editPrice: "",
@@ -275,50 +296,56 @@
     },
     mounted(){
       this.hideAlert()
+      axios.get(`api/bulk_shipments.json`)
+      .then(res => { //TODO 要修正
+        //let tmp = res.data
+        //this.bulkShipments = Object.fromEntries(
+        //  Object.entries(tmp)
+        //  .map(([ key, val ]) => {
+        //    if (key.match(/_date/) ){
+        //      return [key, this.today]
+        //    } else {
+        //      return [key, val]
+        //    }
+        //  })
+        //);
+        this.bulkShipments = res.data
+        console.log(this.bulkShipments)
+        console.log(res.data)
+      })
+      axios.get(`api/bulk_shipments/phases.json`)
+      .then(res => {
+        this.phases = res.data.phases
+        console.log(this.phases)
+      })
+      axios.get(`api/stock_places.json`)
+      .then(res => {
+        this.stockPlaces = res.data
+      })
+      axios.get(`api/delivery_agents.json`)
+      .then(res => {
+        this.deliveryAgents = res.data
+      })
+      console.log(this.stockPlaces)
     },
     methods: {
       createBulkShipment(){
-        if (!this.$refs.form.validate()){
-          return false
-        };
-        this.formdata.set('bulkShipment[code]', this.newCode);
-        this.formdata.set('bulkShipment[name]', this.newName);
-        this.formdata.set('bulkShipment[price]', this.newPrice);
-        this.formdata.set('bulkShipment[is_set]', false);
-        let config = {
-          headers: {
-            'content-type': 'multipart/form-data'
-          }
-        };
-        axios.post(`api/bulkShipments/`, this.formdata, config)
-        .then(res => {
-          this.bulkShipments.push(res.data)
-          this.$refs.form.reset()
-        });
-      },
-      createSetBulkShipment(){ // TODO change name
         if (!this.$refs.createForm.validate()){
           return false
         };
         this.formdata = new FormData
-        this.formdata.set('bulkShipment[customer_name]', this.newCustomerName);
-        this.formdata.set('bulkShipment[postal_code]', this.newPostalCode);
-        this.formdata.set('bulkShipment[prefecture]', this.newPrefecture);
-        this.formdata.set('bulkShipment[address]', this.newAddress);
-        this.formdata.set('bulkShipment[phone_number]', this.newPhoneNumber);
-        this.formdata.set('bulkShipment[bulkShipment_number]', this.newBulkShipmentNumber);
-        this.formdata.set('bulkShipment[platform_id]', this.newPlatform);// plaftform を platform_idとしている
-        this.formdata.set('bulkShipment[delivery_charge]', this.newDeliveryCharge);
-        this.formdata.set('bulkShipment[status]', this.newStatus);
-        this.formdata.set('shipping_items', JSON.stringify(this.newBulkShipmentProducts))
-        axios.post(`api/bulkShipments.json`, this.formdata)
+        this.formdata.set('bulk_shipment[name]', this.newName);
+        this.formdata.set('bulk_shipment[delivery_agent_id]', this.newDeliveryAgent);
+        this.formdata.set('bulk_shipment[tracking_number]', this.newTrackingNumber);
+        this.formdata.set('bulk_shipment[from]', this.newDeparture);
+        this.formdata.set('bulk_shipment[delivery_charge]', this.newDeliveryCharge);
+        this.formdata.set('bulk_shipment[to]', this.newDestination);
+        axios.post(`api/bulk_shipments.json`, this.formdata)
         .then(res => {
           this.bulkShipments.push(res.data)
           this.$refs.createForm.reset()
-        })
-        .catch(res => { 
-          alert("セット商品のID(CODE)が間違っています。")
-         })
+          console.log(res.data)
+        });
       },
       searchBulkShipments(){
         axios.get(`api/bulkShipments.json/?search_keyword=${this.searchKeyword}`)
@@ -352,22 +379,22 @@
         this.indexBulkShipmentFlag = (this.indexBulkShipmentFlag ? false : true )
       },
       updateBulkShipment(obj){
+        console.log(obj)
         this.formdata = new FormData
-        for(let shipping_item of obj.shipping_items){
-          shipping_item.delivery_agent_id = shipping_item.delivery_agent.id
+        this.formdata.set('bulk_shipment[id]', obj.id);
+        this.formdata.set('bulk_shipment[arrived_date]', obj.arrived_date);
+        this.formdata.set('bulk_shipment[delivery_agent_id]', obj.delivery_agent_id); // TODO 要修正
+        this.formdata.set('bulk_shipment[delivery_charge]', obj.delivery_charge);
+        this.formdata.set('bulk_shipment[from]', obj.from);
+        this.formdata.set('bulk_shipment[to]', obj.to);
+        this.formdata.set('bulk_shipment[name]', obj.name);
+        this.formdata.set('bulk_shipment[phase]', obj.phase);
+        this.formdata.set('bulk_shipment[ship_date]', obj.ship_date);
+        this.formdata.set('bulk_shipment[tracking_number]', obj.tracking_number);
+        if (obj.shipping_items){
+          this.formdata.set('shipping_items', JSON.stringify(obj.shipping_items))
         }
-        this.formdata.set('bulkShipment[id]', obj.id);
-        this.formdata.set('bulkShipment[customer_name]', obj.customer_name);
-        this.formdata.set('bulkShipment[postal_code]', obj.postal_code);
-        this.formdata.set('bulkShipment[prefecture]', obj.prefecture);
-        this.formdata.set('bulkShipment[address]', obj.address);
-        this.formdata.set('bulkShipment[phone_number]', obj.phone_number);
-        this.formdata.set('bulkShipment[bulkShipment_number]', obj.bulkShipment_number);
-        this.formdata.set('bulkShipment[platform_id]', obj.platform.id);// plaftform を platform_idとしている
-        this.formdata.set('bulkShipment[delivery_charge]', obj.delivery_charge);
-        this.formdata.set('bulkShipment[status]', obj.status);
-        this.formdata.set('shipping_items', JSON.stringify(obj.shipping_items))
-        axios.patch(`api/bulkShipments/${obj.id}.json`, this.formdata)
+        axios.patch(`api/bulk_shipments/${obj.id}.json`, this.formdata)
         .then(res => {
           var num = this.bulkShipments.findIndex(function(bulkShipment){
             if (bulkShipment.id === res.data.id) { return true }
@@ -395,7 +422,7 @@
       deleteBulkShipment(obj){ /// 要修正
         if (window.confirm("本当にこの注文を削除しますか?") === false ){ return true }
         this.formdata = new FormData
-        axios.delete (`api/bulkShipments/${obj.id}.json`, this.formdata)
+        axios.delete (`api/bulk_shipments/${obj.id}.json`, this.formdata)
         .then(res => {
           var num = this.bulkShipments.findIndex(function(bulkShipment){
             if (bulkShipment.id === res.data.id) { return true }
@@ -425,20 +452,28 @@
           this.alert = false;
         }, 3000)
       },
-      addShippingItem(bulkShipment){
+      addShippingItem(bulkShipment){ // TODO 同じ商品が重複しないように
         console.log(bulkShipment)
-        bulkShipment.shipping_items.push({product_id: "", quantity: 1, price: 0})
+        if (!bulkShipment.shipping_items) {bulkShipment["shipping_items"] = []}
+        bulkShipment.shipping_items.push({
+          product_id: bulkShipment.newProductId,
+          quantity: bulkShipment.newQuantity,
+          price: bulkShipment.newPrice
+        })
+        this.updateBulkShipment(bulkShipment)
       },
-      deleteShippingItem(bulkShipment){
+      deleteShippingItem(bulkShipment, shipping_item_id){
         if (window.confirm("本当にこの商品を削除しますか?") === false ){ return true }
-        var item = bulkShipment.shipping_items.pop()
         this.formdata = new FormData
-        axios.delete (`api/shipping_items/${item.id}.json`, this.formdata)
-        .then(res => { //要変更
-          //var num = this.bulkShipments.findIndex(function(bulkShipment){
-          // if (bulkShipment.id === res.data.id) { return true }
-          //})
-          //this.bulkShipments.splice(num,1)
+        axios.delete (`api/bulk_shipping_items/${shipping_item_id}.json`, this.formdata)
+        .then(res => { 
+          console.log(res.status)
+          if (res.status === 204){
+            var num = bulkShipment.shipping_items.findIndex(function(item){
+              if (item.id === shipping_item_id) { return true }
+            })
+            bulkShipment.shipping_items.splice(num,1)
+          }
         });
       },
       shippingItem(bulkShipment, shipping_item){

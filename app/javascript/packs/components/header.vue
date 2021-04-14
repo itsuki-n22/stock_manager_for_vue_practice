@@ -23,6 +23,10 @@
         <v-icon>mdi-cube-send</v-icon>
       </v-btn>
 
+      <v-btn icon href="/bulk_shipments/">
+        <v-icon>mdi-truck</v-icon>
+      </v-btn>
+
       <v-btn icon>
         <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>

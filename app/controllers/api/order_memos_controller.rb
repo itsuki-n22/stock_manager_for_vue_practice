@@ -1,5 +1,4 @@
 class Api::OrderMemosController < ApplicationController
-  skip_before_action :verify_authenticity_token
 
   def create
     order = Order.find(order_params[:id])

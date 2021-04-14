@@ -7,7 +7,7 @@
 #  delivery_charge   :integer
 #  from              :integer          not null
 #  name              :string           not null
-#  phase             :integer          default(0)
+#  phase             :integer          default("preparing")
 #  ship_date         :date
 #  to                :integer          not null
 #  tracking_number   :string
@@ -24,8 +24,8 @@
 #  fk_rails_...  (delivery_agent_id => delivery_agents.id)
 #
 class BulkShipment < ApplicationRecord
-  belongs_to :delivery_agent
-  #has_many :shipping_items
+  belongs_to :delivery_agent, optional: true
+  has_many :bulk_shipping_items
   belongs_to :destination, class_name: 'StockPlace', foreign_key: "to"
   belongs_to :departure, class_name: 'StockPlace', foreign_key: "from"
   validates :from, presence: true

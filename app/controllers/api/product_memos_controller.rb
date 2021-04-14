@@ -1,5 +1,4 @@
 class Api::ProductMemosController < ApplicationController
-  skip_before_action :verify_authenticity_token
 
   def create
     product = Product.find(product_params[:id])

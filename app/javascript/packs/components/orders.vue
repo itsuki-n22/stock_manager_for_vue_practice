@@ -124,19 +124,24 @@
                     <v-img size="80" :src="shipping_item.first_image_url"></v-img>
                 </v-col>
                 <v-col cols="6" md="3">
-                  <v-text-field label="product_id" @change='updateOrder(order)' v-model='shipping_item.product_id'></v-text-field>
+                  <v-text-field disabled v-if="shipping_item.is_sent === true" label="product_id" @change='updateOrder(order)' v-model='shipping_item.product_id'></v-text-field>
+                  <v-text-field v-if="shipping_item.is_sent !== true" label="product_id" @change='updateOrder(order)' v-model='shipping_item.product_id'></v-text-field>
                 </v-col>
                 <v-col cols="3" md="1">
-                  <v-text-field label="price" @change='updateOrder(order)' v-model='shipping_item.price'></v-text-field>
+                  <v-text-field disabled v-if="shipping_item.is_sent === true" label="price" @change='updateOrder(order)' v-model='shipping_item.price'></v-text-field>
+                  <v-text-field v-if="shipping_item.is_sent !== true" label="price" @change='updateOrder(order)' v-model='shipping_item.price'></v-text-field>
                 </v-col>
                 <v-col cols="3" md="1">
-                  <v-text-field label="quantity" @change='updateOrder(order)' v-model='shipping_item.quantity'></v-text-field>
+                  <v-text-field disabled v-if="shipping_item.is_sent === true" label="quantity" @change='updateOrder(order)' v-model='shipping_item.quantity'></v-text-field>
+                  <v-text-field v-if="shipping_item.is_sent !== true" label="quantity" @change='updateOrder(order)' v-model='shipping_item.quantity'></v-text-field>
                 </v-col>
                 <v-col cols="6" md="2">
-                  <v-select return-object @change='updateOrder(order)' :items="deliveryAgents" item-text="name" item-value="id" label="delivery_agent" v-model='shipping_item.delivery_agent'></v-select>
+                  <v-select disabled v-if="shipping_item.is_sent === true" return-object @change='updateOrder(order)' :items="deliveryAgents" item-text="name" item-value="id" label="delivery_agent" v-model='shipping_item.delivery_agent'></v-select>
+                  <v-select v-if="shipping_item.is_sent !== true" return-object @change='updateOrder(order)' :items="deliveryAgents" item-text="name" item-value="id" label="delivery_agent" v-model='shipping_item.delivery_agent'></v-select>
                 </v-col>
                 <v-col cols="6" md="2">
-                  <v-text-field label="tracking_number" @change='updateOrder(order)' v-model='shipping_item.tracking_number'></v-text-field>
+                  <v-text-field v-if="shipping_item.is_sent !== true" label="tracking_number" @change='updateOrder(order)' v-model='shipping_item.tracking_number'></v-text-field>
+                  <v-text-field v-if="shipping_item.is_sent === true" disabled label="tracking_number" @change='updateOrder(order)' v-model='shipping_item.tracking_number'></v-text-field>
                 </v-col>
                 <v-col cols="3" md="1">
                   <v-btn class="" @click="shippingItem(order, shipping_item)" v-if="shipping_item.is_sent === true" color="" ><v-icon>mdi-undo</v-icon></v-btn>

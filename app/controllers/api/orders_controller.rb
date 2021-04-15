@@ -17,16 +17,24 @@ class Api::OrdersController < ApplicationController
   end
 
   def update
-    p params
-    p shipping_items = shipping_items_with_check_validation
+    shipping_items = shipping_items_with_check_validation
     @order = Order.find(order_params[:id])
     @order.update(order_params)
     shipping_items.each do |shipping_item|
       shipping_item = shipping_item.slice(*ShippingItem.column_names)
+      flag = false
       if shipping_item["id"] && ShippingItem.find(shipping_item["id"])  #update
-        p "------------"
-        p shipping_item
-        @order.shipping_items.find(shipping_item["id"]).update(shipping_item)
+        old_shipping_item = @order.shipping_items.find(shipping_item["id"])
+        next if old_shipping_item["is_sent"] == true && shipping_item["is_sent"] == true #発送済みの場合 is_sent以外は修正できない
+        flag = true if old_shipping_item["is_sent"] == shipping_item["is_sent"] 
+        old_shipping_item.update(shipping_item)
+        if old_shipping_item[:is_sent]
+          old_shipping_item.create_stock_record(quantity: old_shipping_item[:quantity], product_id: old_shipping_item[:product_id])
+        else
+          next if flag
+          old_shipping_item.stock_record.destroy
+        end
+        
       else  #create
         @order.shipping_items.build(shipping_item).save
       end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_15_012004) do
+ActiveRecord::Schema.define(version: 2021_04_15_015256) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -178,6 +178,18 @@ ActiveRecord::Schema.define(version: 2021_04_15_012004) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "stock_records", force: :cascade do |t|
+    t.string "recordable_type"
+    t.bigint "recordable_id"
+    t.bigint "product_id", null: false
+    t.integer "quantity"
+    t.string "reason"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["product_id"], name: "index_stock_records_on_product_id"
+    t.index ["recordable_type", "recordable_id"], name: "index_stock_records_on_recordable"
+  end
+
   create_table "stocks", force: :cascade do |t|
     t.bigint "product_id", null: false
     t.integer "quantity", default: 0, null: false
@@ -236,6 +248,7 @@ ActiveRecord::Schema.define(version: 2021_04_15_012004) do
   add_foreign_key "shipping_items", "delivery_agents"
   add_foreign_key "shipping_items", "orders"
   add_foreign_key "shipping_items", "products"
+  add_foreign_key "stock_records", "products"
   add_foreign_key "stocks", "products"
   add_foreign_key "stocks", "stock_places"
   add_foreign_key "todos", "users"

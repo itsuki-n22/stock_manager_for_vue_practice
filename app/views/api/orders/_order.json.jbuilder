@@ -12,7 +12,7 @@ end
 json.flag false
 json.platform order.platform, :id, :name, :url
 json.shipping_items do 
-  json.array! order.shipping_items do |shipping_item|
+  json.array! order.shipping_items.order(:created_at) do |shipping_item|
     product = Product.find(shipping_item.product_id)
     json.product_id product.code
     json.first_image_url product.first_image_url

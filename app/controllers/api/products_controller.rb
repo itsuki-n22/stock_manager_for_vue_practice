@@ -2,7 +2,7 @@ class Api::ProductsController < ApplicationController
   
   def index
     search_keyword = params[:search_keyword]
-    @products = Product.left_joins(:alias_ids).distinct.limit(200)
+    @products = Product.left_joins(:alias_ids).distinct.limit(200).order(code: :asc)
     @products = @products.where(['products.name like ? or products.code like ? or alias_ids.code like ?', "%#{search_keyword}%", "%#{search_keyword}%", "%#{search_keyword}%"]).references(:alias_ids) if search_keyword
     respond_to do |format|
       format.json 

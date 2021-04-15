@@ -26,7 +26,7 @@
 class BulkShipment < ApplicationRecord
   belongs_to :delivery_agent, optional: true
   has_many :bulk_shipping_items
-  has_one :stock_record, as: :recordable
+  has_many :stock_records, as: :recordable
   belongs_to :destination, class_name: 'StockPlace', foreign_key: "to"
   belongs_to :departure, class_name: 'StockPlace', foreign_key: "from"
   validates :from, presence: true

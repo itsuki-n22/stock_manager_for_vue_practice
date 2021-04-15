@@ -2,7 +2,7 @@ class Api::BulkShipmentsController < ApplicationController
 
   def index
     search_keyword = params[:search_keyword]
-    @bulk_shipments = BulkShipment.all.where('name like ?' , "%#{search_keyword}%")
+    @bulk_shipments = BulkShipment.all.where('name like ?' , "%#{search_keyword}%").order(created_at: :desc)
     render format: :json
   end
 
@@ -14,16 +14,28 @@ class Api::BulkShipmentsController < ApplicationController
 
   def update
     @bulk_shipment = BulkShipment.find(bulk_shipment_params[:id])
+    previous_phase = @bulk_shipment.phase
+    current_phase = bulk_shipment_params[:phase]
     @bulk_shipment.update(bulk_shipment_params)
     shipping_items = shipping_items_with_check_validation
+
+    if previous_phase != current_phase && current_phase == "preparing"
+      @bulk_shipment.stock_records.destroy_all
+    end
+
     shipping_items.each do |shipping_item|
       shipping_item = shipping_item.slice(*BulkShippingItem.column_names)
       if shipping_item["id"] && BulkShippingItem.find(shipping_item["id"])  #update
-        @bulk_shipment.bulk_shipping_items.find(shipping_item["id"]).update(shipping_item)
+        bulk_shipping_item = @bulk_shipment.bulk_shipping_items.find(shipping_item["id"])
+        bulk_shipping_item.update(shipping_item)
+        if previous_phase != current_phase && previous_phase == "preparing"
+          @bulk_shipment.stock_records.create(quantity: bulk_shipping_item[:quantity], product_id: bulk_shipping_item[:product_id])
+        end
       else  #create
         @bulk_shipment.bulk_shipping_items.build(shipping_item).save
       end
     end
+
     render format: :json
   end
 

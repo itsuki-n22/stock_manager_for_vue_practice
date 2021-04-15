@@ -7,6 +7,9 @@ class Api::StockPlacesController < ApplicationController
 
   def create
     @stock_place = StockPlace.create!(stock_place_params)
+    Product.all.each do |product|
+      product.stocks.create(stock_place_id: @stock_place.id)
+    end
     render formats: :json
   end
 

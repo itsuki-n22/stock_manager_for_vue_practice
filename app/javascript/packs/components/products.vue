@@ -154,9 +154,13 @@
                   <v-text-field label="memo" @change='updateProductMemo(product)' v-model='product.memo.content'></v-text-field>
                 </v-col>
                 
-                <v-col cols="4" md="1" v-for="(stock, place, index) in sorted_stocks(product.stocks)" :key="index">
-                  <v-text-field v-if="product.is_set !== true" @change='updateStock(stock)' :label="place" v-model='product.stocks[place]["quantity"]'></v-text-field> 
-                  <v-text-field disabled v-if="product.is_set === true" :label="place" v-model='product.stocks[place]["quantity"]'></v-text-field> 
+                <v-col cols="12" md="3">
+                  <v-row>
+                    <v-col cols="4" v-for="(stock, place, index) in sorted_stocks(product.stocks)" :key="index">
+                      <v-text-field v-if="product.is_set !== true" @change='updateStock(stock)' :label="place" v-model='product.stocks[place]["quantity"]'></v-text-field> 
+                      <v-text-field disabled v-if="product.is_set === true" :label="place" v-model='product.stocks[place]["quantity"]'></v-text-field> 
+                    </v-col>
+                  </v-row>
                 </v-col>
                
               </v-row>
@@ -296,31 +300,28 @@
       }
     },
     mounted(){
+      this.hideAlert()
+
       axios.get(`api/products.json`)
       .then(res => {
         this.products = res.data;
         console.log(this.products)
+      });
 
-        var first_stocks = this.products[0].stocks // stock_place のソート
-        this.sorted_stock_places = Object.keys(first_stocks).sort(
-          function(a,b){
-            first_stocks[a]["stock_place_id"] > first_stocks[b]["stock_place_id"]
-          }
-        )
-        var first_alias_ids = this.products[0].alias_id /// alias_id のソート
-        this.sorted_alias_id_kind = Object.keys(first_alias_ids).sort(
-          function(a,b){
-            first_alias_ids[a]["alias_id_kind_id"] > first_alias_ids[b]["alias_id_kind_id"]
-          }
-        )
+      axios.get(`api/stock_places.json`)
+      .then(res => {
+        this.sorted_stock_places = res.data.map( (obj) => obj.name)
+      })
 
+      axios.get(`api/alias_id_kinds.json`)
+      .then(res => {
+        this.sorted_alias_id_kind = res.data.map( (obj) => obj.name)
         let editAliasIds = {} /// editAliasIdsの設定
-        this.sorted_alias_id_kind.forEach(function(alias_id_kind){
+        this.sorted_alias_id_kind.forEach(function(alias_id_kind){ // foreach内でthis.editAliasIdsを参照できない
           editAliasIds[alias_id_kind] = ""
         })
         this.editAliasIds = editAliasIds
-      });
-      this.hideAlert()
+      })
     },
     computed: {
     },

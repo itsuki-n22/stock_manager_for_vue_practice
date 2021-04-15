@@ -3,7 +3,7 @@
 # Table name: alias_ids
 #
 #  id               :bigint           not null, primary key
-#  code             :string           not null
+#  code             :string           default(""), not null
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
 #  alias_id_kind_id :bigint

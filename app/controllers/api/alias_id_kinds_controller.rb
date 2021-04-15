@@ -7,6 +7,9 @@ class Api::AliasIdKindsController < ApplicationController
 
   def create
     @alias_id_kind = AliasIdKind.create!(alias_id_kind_params)
+    Product.all.each do |product|
+      product.alias_ids.create(alias_id_kind_id: @alias_id_kind.id)
+    end
     render formats: :json
   end
 

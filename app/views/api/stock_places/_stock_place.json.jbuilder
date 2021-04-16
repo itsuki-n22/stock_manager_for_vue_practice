@@ -1,1 +1,1 @@
-json.extract! stock_place, :id, :name
+json.extract! stock_place, :id, :name, :has_quantity

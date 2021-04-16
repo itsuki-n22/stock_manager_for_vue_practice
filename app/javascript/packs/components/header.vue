@@ -16,7 +16,7 @@
       </v-btn>
 
       <v-btn icon href="/products/">
-        <v-icon>mdi-square</v-icon>
+        <v-icon>mdi-basket</v-icon>
       </v-btn>
 
       <v-btn icon href="/orders/">

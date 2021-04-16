@@ -21,7 +21,7 @@ class Api::StockPlacesController < ApplicationController
   
   private
     def stock_place_params
-      params.require(:stock_place).permit(:id, :name)
+      params.require(:stock_place).permit(:id, :name, :has_quantity)
     end
 
 end

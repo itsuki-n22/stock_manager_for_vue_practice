@@ -29,17 +29,38 @@
     </div>
 
     <div v-if="stockPlaceFlag === true">
-      <h3 class="text-center ma-3">在庫場所一覧</h3>
+      <h3 class="text-center ma-3">在庫場所</h3>
       <v-list >
         <v-list-item>
           <v-list-item-content>
             <v-container>
               <v-row align="center" >
-                <v-col v-for="(stockPlace, index) in stockPlaces" v-bind:key="stockPlace.id" cols="12" md="2"><v-text-field @change='updateStockPlace(stockPlace)' label="場所" v-model='stockPlace.name'></v-text-field></v-col>
+                <v-col v-for="(stockPlace, index) in hasQuantityStockPlaces" v-bind:key="stockPlace.id" cols="12" md="2">
+                  <v-text-field @change='updateStockPlace(stockPlace)' label="場所" v-model='stockPlace.name'></v-text-field>
+                </v-col>
                 <v-spacer></v-spacer>
-                <v-col cols="8" md="2"><v-form ref="createStockPlaceForm"><v-text-field outlined :rules=nameRules label="場所の追加" v-model='newStockPlaceName'></v-text-field></v-form></v-col>
+                <v-col cols="8" md="2"><v-form ref="createStockPlaceForm"><v-text-field outlined :rules=nameRules label="場所の追加" v-model='newStockPlaceName[true]'></v-text-field></v-form></v-col>
                 <v-col cols="4" md="2">
-                  <v-btn color="primary" @click='createStockPlace()'><v-icon>mdi-plus</v-icon></v-btn>
+                  <v-btn color="primary" @click='createStockPlace(true)'><v-icon>mdi-plus</v-icon></v-btn>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+      <h3 class="text-center ma-3">発送元/発送先</h3>
+      <v-list >
+        <v-list-item>
+          <v-list-item-content>
+            <v-container>
+              <v-row align="center" >
+                <v-col v-for="(stockPlace, index) in notHasQuantityStockPlaces" v-bind:key="stockPlace.id" cols="12" md="2">
+                  <v-text-field @change='updateStockPlace(stockPlace)' label="場所" v-model='stockPlace.name'></v-text-field>
+                </v-col>
+                <v-spacer></v-spacer>
+                <v-col cols="8" md="2"><v-form ref="createStockPlaceFormWithoutQuantity"><v-text-field outlined :rules=nameRules label="場所の追加" v-model='newStockPlaceName[false]'></v-text-field></v-form></v-col>
+                <v-col cols="4" md="2">
+                  <v-btn color="primary" @click='createStockPlace(false)'><v-icon>mdi-plus</v-icon></v-btn>
                 </v-col>
               </v-row>
             </v-container>
@@ -186,7 +207,7 @@
         newDeliveryAgentName: "",
         newDeliveryAgentURL: "",
         newStockPlaceURL: "",
-        newStockPlaceName: "",
+        newStockPlaceName: {true: "", false: ""},
         newPlatformName: "",
         newPlatformURL: "",
 
@@ -225,17 +246,33 @@
       })
 
     },
+    computed: {
+      hasQuantityStockPlaces: function(){
+        return  this.stockPlaces.filter(function(obj){
+          if (obj.has_quantity){return obj}
+        })
+      },
+      notHasQuantityStockPlaces: function(){
+        return  this.stockPlaces.filter(function(obj){
+          if (obj.has_quantity === false){return obj}
+        })
+      }
+    },
     methods: {
-      createStockPlace: function(){
-        if (!this.$refs.createStockPlaceForm.validate()){
+      createStockPlace: function(flag){
+        if (!this.$refs.createStockPlaceForm.validate() && flag ){
+          return false
+        } else if (!this.$refs.createStockPlaceFormWithoutQuantity.validate() && !flag ){
           return false
         };
         this.formdata = new FormData
-        this.formdata.set('stock_place[name]', this.newStockPlaceName);
+        this.formdata.set('stock_place[name]', this.newStockPlaceName[flag]);
+        this.formdata.set('stock_place[has_quantity]', flag);
         axios.post(`api/stock_places.json`, this.formdata)
         .then(res => {
           this.stockPlaces.push(res.data)
           this.$refs.createStockPlaceForm.reset()
+          this.$refs.createStockPlaceFormWithoutQuantity.reset()
           console.log(res.data)
         });
       },

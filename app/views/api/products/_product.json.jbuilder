@@ -37,12 +37,13 @@ if product.is_set == true
   json.price set_price
 end
 product.stocks.each do |stock|
+  
   json.stocks do  # is_set でも現状ではDBにstockが登録されている。それがなくてもOKになるようにしよう TODO
     json.set! stock.stock_place.name do 
-    json.id stock.id
-    json.stock_place_id stock.stock_place.id
-    json.quantity stock.quantity
-    json.quantity available_stocks[stock.stock_place.name] if product.is_set == true
+      json.id stock.id
+      json.stock_place_id stock.stock_place.id
+      json.quantity stock.quantity
+      json.quantity available_stocks[stock.stock_place.name] if product.is_set == true
     end
   end
 end  

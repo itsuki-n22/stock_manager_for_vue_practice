@@ -145,7 +145,7 @@
                 </v-col>
                 <v-col cols="3" md="1">
                   <v-btn class="" @click="shippingItem(order, shipping_item)" v-if="shipping_item.is_sent === true" color="" ><v-icon>mdi-undo</v-icon></v-btn>
-                  <v-btn class="" @click="shippingItem(order, shipping_item)" v-if="shipping_item.is_sent !== true" color="primary" ><v-icon>mdi-truck</v-icon></v-btn>
+                  <v-btn class="" @click="shippingItem(order, shipping_item)" v-if="shipping_item.is_sent !== true" color="primary" ><v-icon>mdi-cube-send</v-icon></v-btn>
                 </v-col>
                 <v-col cols="3" md="1" v-if="order.shipping_items.length === index + 1 ">
                   <v-btn class="mt-4" @click="addShippingItem(order)" ><v-icon>mdi-plus</v-icon></v-btn>

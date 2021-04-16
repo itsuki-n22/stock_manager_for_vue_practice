@@ -310,7 +310,9 @@
 
       axios.get(`api/stock_places.json`)
       .then(res => {
-        this.sorted_stock_places = res.data.map( (obj) => obj.name)
+        this.sorted_stock_places = res.data.filter( (obj) => {
+          if (obj.has_quantity){return true}
+        }).map(obj => obj.name)
       })
 
       axios.get(`api/alias_id_kinds.json`)

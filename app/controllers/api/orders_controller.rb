@@ -27,12 +27,15 @@ class Api::OrdersController < ApplicationController
         old_shipping_item = @order.shipping_items.find(shipping_item["id"])
         next if old_shipping_item["is_sent"] == true && shipping_item["is_sent"] == true #発送済みの場合 is_sent以外は修正できない
         flag = true if old_shipping_item["is_sent"] == shipping_item["is_sent"] 
+        p shipping_item
+        p params
+        p 22222222222222222222
         old_shipping_item.update(shipping_item)
         if old_shipping_item[:is_sent]
-          old_shipping_item.create_stock_record(quantity: old_shipping_item[:quantity], product_id: old_shipping_item[:product_id])
+          #old_shipping_item.create_stock_record(quantity: old_shipping_item[:quantity], product_id: old_shipping_item[:product_id])
         else
           next if flag
-          old_shipping_item.stock_record.destroy
+          #old_shipping_item.stock_record.destroy
         end
         
       else  #create

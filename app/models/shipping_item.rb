@@ -3,9 +3,11 @@
 # Table name: shipping_items
 #
 #  id                :bigint           not null, primary key
+#  from              :integer          default(0)
 #  is_sent           :boolean
 #  price             :integer          default(0), not null
 #  quantity          :integer          default(1), not null
+#  to                :integer          default(0)
 #  tracking_number   :string
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
@@ -26,9 +28,19 @@
 #  fk_rails_...  (product_id => products.id)
 #
 class ShippingItem < ApplicationRecord
+  after_initialize :set_default_destination_and_departure
   belongs_to :order
   belongs_to :product
   belongs_to :delivery_agent
+  belongs_to :departure, class_name:'StockPlace', foreign_key: "from" 
+  belongs_to :destination, class_name:'StockPlace', foreign_key: "to" 
   has_one :stock_record, as: :recordable
   validates_uniqueness_of :order_id, scope: :product_id
+
+  def set_default_destination_and_departure
+    # TODO StockPlaceのクエリ、こんなに発行する必要ないので後でリファクタ
+    # デフォルトの配送先と配送元を登録されたStockPlaceからIDを取得する
+    self.to = StockPlace.all.where(has_quantity: false).first.id if to == nil || to == 0
+    self.from = StockPlace.all.where(has_quantity: true).first.id if from == nil || from == 0
+  end
 end

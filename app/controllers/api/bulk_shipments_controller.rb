@@ -19,7 +19,7 @@ class Api::BulkShipmentsController < ApplicationController
     @bulk_shipment.update(bulk_shipment_params)
     shipping_items = shipping_items_with_check_validation
 
-    if previous_phase != current_phase && current_phase == "preparing"
+    if previous_phase != current_phase && current_phase == "preparing" # TODO
       @bulk_shipment.stock_records.destroy_all
     end
 

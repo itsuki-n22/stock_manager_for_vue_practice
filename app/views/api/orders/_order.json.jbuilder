@@ -21,6 +21,9 @@ json.shipping_items do
     json.delivery_agent shipping_item.delivery_agent
     json.is_sent shipping_item.is_sent
     json.price shipping_item.price
+    json.from shipping_item.from
+    json.to shipping_item.to
     json.id shipping_item.id
+    json.flag false
   end
 end

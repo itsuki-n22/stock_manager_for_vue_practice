@@ -123,7 +123,7 @@
                 <v-col cols="6" md="1">
                     <v-img size="80" :src="shipping_item.first_image_url"></v-img>
                 </v-col>
-                <v-col cols="6" md="3">
+                <v-col cols="6" md="2">
                   <v-text-field disabled v-if="shipping_item.is_sent === true" label="product_id" @change='updateOrder(order)' v-model='shipping_item.product_id'></v-text-field>
                   <v-text-field v-if="shipping_item.is_sent !== true" label="product_id" @change='updateOrder(order)' v-model='shipping_item.product_id'></v-text-field>
                 </v-col>
@@ -144,8 +144,19 @@
                   <v-text-field v-if="shipping_item.is_sent === true" disabled label="tracking_number" @change='updateOrder(order)' v-model='shipping_item.tracking_number'></v-text-field>
                 </v-col>
                 <v-col cols="3" md="1">
+                  <v-btn class="" color="" @click="toggleShippingItem(shipping_item)"><v-icon> mdi-map-marker </v-icon></v-btn>
+                </v-col>
+                <v-col cols="3" md="1">
                   <v-btn class="" @click="shippingItem(order, shipping_item)" v-if="shipping_item.is_sent === true" color="" ><v-icon>mdi-undo</v-icon></v-btn>
                   <v-btn class="" @click="shippingItem(order, shipping_item)" v-if="shipping_item.is_sent !== true" color="primary" ><v-icon>mdi-cube-send</v-icon></v-btn>
+                </v-col>
+                <v-col cols="6" md="4" v-if="shipping_item.flag === true">
+                  <v-select disabled v-if="shipping_item.is_sent === true" @change='updateOrder(order)' :items="stockPlaces" item-text="name" item-value="id" label="from" v-model='shipping_item.from'></v-select>
+                  <v-select v-if="shipping_item.is_sent !== true" @change='updateOrder(order)' :items="stockPlaces" item-text="name" item-value="id" label="from" v-model='shipping_item.from'></v-select>
+                </v-col>
+                <v-col cols="6" md="4" v-if="shipping_item.flag === true">
+                  <v-select disabled v-if="shipping_item.is_sent === true" @change='updateOrder(order)' :items="stockPlaces" item-text="name" item-value="id" label="to" v-model='shipping_item.to'></v-select>
+                  <v-select v-if="shipping_item.is_sent !== true" @change='updateOrder(order)' :items="stockPlaces" item-text="name" item-value="id" label="to" v-model='shipping_item.to'></v-select>
                 </v-col>
                 <v-col cols="3" md="1" v-if="order.shipping_items.length === index + 1 ">
                   <v-btn class="mt-4" @click="addShippingItem(order)" ><v-icon>mdi-plus</v-icon></v-btn>
@@ -213,6 +224,7 @@
     data () {
       return {
         platforms: [],
+        stockPlaces: [],
         status: [
           "注文直後",  
           "入金待ち",  
@@ -282,16 +294,25 @@
         this.orders = res.data;
         console.log(res)
       });
+
       axios.get(`api/platforms.json`)
       .then(res => {
         this.platforms = res.data;
         console.log(this.platforms)
       });
+
       axios.get(`api/delivery_agents.json`)
       .then(res => {
         this.deliveryAgents = res.data
         console.log(res.data)
       });
+
+      axios.get(`api/stock_places.json`)
+      .then(res => {
+        this.stockPlaces = res.data
+        console.log("stock_places")
+        console.log(res.data)
+      })
       this.hideAlert()
     },
     methods: {
@@ -353,6 +374,9 @@
       },
       toggle: function(index){
         this.orders[index].flag = (this.orders[index].flag ? false : true )
+      },
+      toggleShippingItem: function(shippingItem){
+        shippingItem.flag = (shippingItem.flag ? false : true )
       },
       toggleCreateOrder: function(index){
         this.createNewOrderFlag = (this.createNewOrderFlag ? false : true )
@@ -445,7 +469,7 @@
       },
       addShippingItem(order){
         console.log(order)
-        order.shipping_items.push({product_id: "", quantity: 1, price: 0})
+        order.shipping_items.push({product_id: "", quantity: 1, price: 0, from: 0, to: 0, flag: false})
       },
       deleteShippingItem(order){
         if (window.confirm("本当にこの商品を削除しますか?") === false ){ return true }

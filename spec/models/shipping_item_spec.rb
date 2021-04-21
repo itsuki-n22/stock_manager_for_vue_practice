@@ -3,9 +3,11 @@
 # Table name: shipping_items
 #
 #  id                :bigint           not null, primary key
+#  from              :integer          default(0)
 #  is_sent           :boolean
 #  price             :integer          default(0), not null
 #  quantity          :integer          default(1), not null
+#  to                :integer          default(0)
 #  tracking_number   :string
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null

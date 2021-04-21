@@ -23,5 +23,6 @@
 class BulkShippingItem < ApplicationRecord
   belongs_to :bulk_shipment
   belongs_to :product
+  validates :product, uniqueness: { scope: :bulk_shipment_id}
 
 end

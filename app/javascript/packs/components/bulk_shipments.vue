@@ -398,10 +398,10 @@
         }
         axios.patch(`api/bulk_shipments/${obj.id}.json`, this.formdata)
         .then(res => {
-          var num = this.bulkShipments.findIndex(function(bulkShipment){
-            if (bulkShipment.id === res.data.id) { return true }
-          })
-          this.bulkShipments[num] = res.data
+          //var num = this.bulkShipments.findIndex(function(bulkShipment){
+          //  if (bulkShipment.id === res.data.id) { return true }
+          //})
+          //this.bulkShipments[num] = res.data
           this.editBulkShipmentFlag = false
         });
       },

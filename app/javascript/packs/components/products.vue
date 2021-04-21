@@ -139,7 +139,7 @@
           <v-list-item-content>
             <v-container>
               <v-row align="center" >
-                <v-col cols="12" md="3">
+                <v-col cols="12" md="2">
                   <v-badge content="set" v-if="product.is_set === true">
                     <div class="font-weight-bold">{{ product.code }} </div>
                   </v-badge>
@@ -157,8 +157,17 @@
                 <v-col cols="12" md="3">
                   <v-row>
                     <v-col cols="4" v-for="(stock, place, index) in sorted_stocks(product.stocks)" :key="index">
-                      <v-text-field v-if="product.is_set !== true" @change='updateStock(stock)' :label="place" v-model='product.stocks[place]["quantity"]'></v-text-field> 
-                      <v-text-field disabled v-if="product.is_set === true" :label="place" v-model='product.stocks[place]["quantity"]'></v-text-field> 
+                      <v-row>
+                        <v-col>
+                          <v-text-field v-if="product.is_set !== true" @change='updateStock(stock)' :label="place" v-model='product.stocks[place]["quantity"]'></v-text-field> 
+                          <v-text-field disabled v-if="product.is_set === true" :label="place" v-model='product.stocks[place]["quantity"]'></v-text-field> 
+                        </v-col>
+                      </v-row>
+                      <v-row>
+                        <v-col>
+                          <v-text-field disabled filled label="price" v-model='product.stocks[place]["ave_price"]'></v-text-field> 
+                        </v-col>
+                      </v-row>
                     </v-col>
                   </v-row>
                 </v-col>

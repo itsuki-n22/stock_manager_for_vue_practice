@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_20_235312) do
+ActiveRecord::Schema.define(version: 2021_04_21_071232) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -190,6 +190,7 @@ ActiveRecord::Schema.define(version: 2021_04_20_235312) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.integer "stock_place_id"
+    t.float "new_price"
     t.index ["product_id"], name: "index_stock_records_on_product_id"
     t.index ["recordable_type", "recordable_id"], name: "index_stock_records_on_recordable"
   end
@@ -200,6 +201,7 @@ ActiveRecord::Schema.define(version: 2021_04_20_235312) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "stock_place_id"
+    t.float "ave_price", default: 0.0
     t.index ["product_id"], name: "index_stocks_on_product_id"
     t.index ["stock_place_id"], name: "index_stocks_on_stock_place_id"
   end

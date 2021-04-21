@@ -43,6 +43,7 @@ product.stocks.each do |stock|
       json.id stock.id
       json.stock_place_id stock.stock_place.id
       json.quantity stock.quantity
+      json.ave_price stock.ave_price
       json.quantity available_stocks[stock.stock_place.name] if product.is_set == true
     end
   end

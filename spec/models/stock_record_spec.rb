@@ -3,6 +3,7 @@
 # Table name: stock_records
 #
 #  id              :bigint           not null, primary key
+#  new_price       :float
 #  quantity        :integer
 #  reason          :string
 #  recordable_type :string

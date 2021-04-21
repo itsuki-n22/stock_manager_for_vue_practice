@@ -3,6 +3,7 @@
 # Table name: stock_records
 #
 #  id              :bigint           not null, primary key
+#  new_price       :float
 #  quantity        :integer
 #  reason          :string
 #  recordable_type :string
@@ -24,8 +25,38 @@
 class StockRecord < ApplicationRecord
   belongs_to :recordable, polymorphic: true
   belongs_to :product
+  before_create :reflect_stocks_on_create
+  before_destroy :reflect_stocks_on_destroy
   
   private
-    def reflect_stocks
+    def reflect_stocks_on_create
+      stock = Stock.where(product_id: product_id, stock_place_id: stock_place_id).first # TODO 書き直せ
+      if new_price
+        sum_price = stock.quantity * stock.ave_price + quantity * new_price
+        if stock.quantity + quantity > 0 
+          stock.ave_price = sum_price / (stock.quantity + quantity) 
+        else
+          stock.ave_price = 0
+        end
+      end
+      stock.ave_price = 0 if stock.ave_price < 0
+      stock.quantity = stock.quantity + quantity
+      stock.save!
     end
+
+    def reflect_stocks_on_destroy
+      stock = Stock.where(product_id: product_id, stock_place_id: stock_place_id).first # TODO 書き直せ
+      if new_price
+        sum_price = stock.quantity * stock.ave_price - quantity * new_price
+        if stock.quantity - quantity > 0
+          stock.ave_price = sum_price / (stock.quantity - quantity)
+        else
+          stock.ave_price = 0
+        end
+      end
+      stock.ave_price = 0 if stock.ave_price < 0
+      stock.quantity = stock.quantity - quantity
+      stock.save!
+    end
+
 end

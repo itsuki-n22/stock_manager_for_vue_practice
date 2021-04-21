@@ -22,23 +22,32 @@ class Api::OrdersController < ApplicationController
     @order.update(order_params)
     shipping_items.each do |shipping_item|
       shipping_item = shipping_item.slice(*ShippingItem.column_names)
-      flag = false
+      prohibit_already_sent_item_flag = false
       if shipping_item["id"] && ShippingItem.find(shipping_item["id"])  #update
         old_shipping_item = @order.shipping_items.find(shipping_item["id"])
         next if old_shipping_item["is_sent"] == true && shipping_item["is_sent"] == true #発送済みの場合 is_sent以外は修正できない
-        flag = true if old_shipping_item["is_sent"] == shipping_item["is_sent"] 
-        p shipping_item
-        p params
-        p 22222222222222222222
+        prohibit_already_sent_item_flag = true if old_shipping_item["is_sent"] == shipping_item["is_sent"] 
         old_shipping_item.update(shipping_item)
-        if old_shipping_item[:is_sent]
-          #old_shipping_item.create_stock_record(quantity: old_shipping_item[:quantity], product_id: old_shipping_item[:product_id])
-        else
-          next if flag
-          #old_shipping_item.stock_record.destroy
+        if old_shipping_item[:is_sent] #元々配送済み状態でない
+          if old_shipping_item.departure.has_quantity?
+            old_shipping_item.stock_records.create(quantity: -1 * old_shipping_item[:quantity],
+              stock_place_id: old_shipping_item[:from],
+              product_id: old_shipping_item[:product_id])
+          end
+
+          if old_shipping_item.destination.has_quantity?
+            old_shipping_item.stock_records.create(quantity: old_shipping_item[:quantity],
+              stock_place_id: old_shipping_item[:to],
+              product_id: old_shipping_item[:product_id])
+          end
+
+        else # 元々配送済み状態である
+          next if prohibit_already_sent_item_flag
+          old_shipping_item.stock_records.destroy_all
         end
         
       else  #create
+        next if shipping_item[:is_sent] # 登録されていないのに発送済みにならないようにする
         @order.shipping_items.build(shipping_item).save
       end
     end

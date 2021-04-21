@@ -25,7 +25,9 @@ Rails.application.routes.draw do
     resources :alias_id_kinds, only: %i[index create update] 
     resources :platforms, only: %i[index create update] 
     resources :delivery_agents, only: %i[index create update] 
-    resources :stock_places, only: %i[index create update] 
+    resources :stock_places, only: %i[index create update] do
+      get :defaults, on: :collection
+    end
 
     resources :stocks, only: %i[update] 
     resources :product_memos, only: %i[create update] 

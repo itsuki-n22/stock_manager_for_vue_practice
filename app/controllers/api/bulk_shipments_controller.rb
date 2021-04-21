@@ -28,8 +28,18 @@ class Api::BulkShipmentsController < ApplicationController
       if shipping_item["id"] && BulkShippingItem.find(shipping_item["id"])  #update
         bulk_shipping_item = @bulk_shipment.bulk_shipping_items.find(shipping_item["id"])
         bulk_shipping_item.update(shipping_item)
-        if previous_phase != current_phase && previous_phase == "preparing"
-          @bulk_shipment.stock_records.create(quantity: bulk_shipping_item[:quantity], product_id: bulk_shipping_item[:product_id])
+        if previous_phase != current_phase && previous_phase == "preparing" && @bulk_shipment.departure.has_quantity
+          @bulk_shipment.stock_records.create(quantity: -1 * bulk_shipping_item[:quantity],
+           product_id: bulk_shipping_item[:product_id], stock_place_id: @bulk_shipment[:from]
+           )
+        end
+        if previous_phase != current_phase && current_phase == "arrived" && @bulk_shipment.destination.has_quantity
+          @bulk_shipment.stock_records.create(quantity: 1 * bulk_shipping_item[:quantity],
+           product_id: bulk_shipping_item[:product_id], stock_place_id: @bulk_shipment[:to]
+           )
+        end
+        if previous_phase != current_phase && current_phase == "lost" && @bulk_shipment.destination.has_quantity
+          @bulk_shipment.stock_records.where(stock_place_id: @bulk_shipment[:to]).destroy_all
         end
       else  #create
         @bulk_shipment.bulk_shipping_items.build(shipping_item).save

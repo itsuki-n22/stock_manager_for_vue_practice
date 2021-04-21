@@ -18,6 +18,11 @@ class Api::StockPlacesController < ApplicationController
     @stock_place.update(stock_place_params)
     render formats: :json
   end
+
+  def defaults
+    @default_stock_place_without_quantity = StockPlace.all.where(has_quantity: false).first
+    @default_stock_place_with_quantity = StockPlace.all.where(has_quantity: true).first
+  end
   
   private
     def stock_place_params

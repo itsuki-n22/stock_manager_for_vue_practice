@@ -189,10 +189,9 @@ ActiveRecord::Schema.define(version: 2021_04_20_235312) do
     t.string "reason"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "stock_place_id", null: false
+    t.integer "stock_place_id"
     t.index ["product_id"], name: "index_stock_records_on_product_id"
     t.index ["recordable_type", "recordable_id"], name: "index_stock_records_on_recordable"
-    t.index ["stock_place_id"], name: "index_stock_records_on_stock_place_id"
   end
 
   create_table "stocks", force: :cascade do |t|
@@ -254,7 +253,6 @@ ActiveRecord::Schema.define(version: 2021_04_20_235312) do
   add_foreign_key "shipping_items", "orders"
   add_foreign_key "shipping_items", "products"
   add_foreign_key "stock_records", "products"
-  add_foreign_key "stock_records", "stock_places"
   add_foreign_key "stocks", "products"
   add_foreign_key "stocks", "stock_places"
   add_foreign_key "todos", "users"

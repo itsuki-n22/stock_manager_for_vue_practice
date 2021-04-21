@@ -34,7 +34,7 @@ class ShippingItem < ApplicationRecord
   belongs_to :delivery_agent
   belongs_to :departure, class_name:'StockPlace', foreign_key: "from" 
   belongs_to :destination, class_name:'StockPlace', foreign_key: "to" 
-  has_one :stock_record, as: :recordable
+  has_many :stock_records, as: :recordable
   validates_uniqueness_of :order_id, scope: :product_id
 
   def set_default_destination_and_departure

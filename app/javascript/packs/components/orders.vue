@@ -225,6 +225,8 @@
       return {
         platforms: [],
         stockPlaces: [],
+        defaultStockPlaceWithQuantity: {},
+        defaultStockPlaceWithoutQuantity: {},
         status: [
           "注文直後",  
           "入金待ち",  
@@ -311,6 +313,14 @@
       .then(res => {
         this.stockPlaces = res.data
         console.log("stock_places")
+        console.log(res.data)
+      })
+
+      axios.get(`api/stock_places/defaults.json`)
+      .then(res => {
+        console.log("stock_places_default")
+        this.defaultStockPlaceWithQuantity = res.data.default_stock_place_with_quantity
+        this.defaultStockPlaceWithoutQuantity = res.data.default_stock_place_without_quantity
         console.log(res.data)
       })
       this.hideAlert()
@@ -411,11 +421,10 @@
         this.formdata.set('shipping_items', JSON.stringify(obj.shipping_items))
         axios.patch(`api/orders/${obj.id}.json`, this.formdata)
         .then(res => {
-          var num = this.orders.findIndex(function(order){
-            if (order.id === res.data.id) { return true }
-          })
-          this.orders[num] = res.data
-          this.editOrderFlag = false
+          //var num = this.orders.findIndex(function(order){
+          //  if (order.id === res.data.id) { return true }
+          //})
+          //this.orders[num] = res.data
         });
       },
       updateOrderMemo(obj){
@@ -469,7 +478,15 @@
       },
       addShippingItem(order){
         console.log(order)
-        order.shipping_items.push({product_id: "", quantity: 1, price: 0, from: 0, to: 0, flag: false})
+        const default_from = this.stockPlaces.filter(function(obj){ 
+          if (obj.has_quantity === true){
+            return obj
+          }
+        })
+        console.log(default_from)
+        order.shipping_items.push({product_id: "", quantity: 1, price: 0,
+          from: this.defaultStockPlaceWithQuantity.id, to: this.defaultStockPlaceWithoutQuantity.id, flag: false,
+        })
       },
       deleteShippingItem(order){
         if (window.confirm("本当にこの商品を削除しますか?") === false ){ return true }

@@ -14,16 +14,21 @@
 class Product < ApplicationRecord
   include Rails.application.routes.url_helpers
   after_save :init_params
-  validates :code, uniqueness: true
+  validates :code, uniqueness: true, presence: true
   validates :is_set, inclusion: {in: [true, false]}
 
   has_one :shipping_items
   has_one :memo, class_name: "ProductMemo", dependent: :destroy
   has_many_attached :images
   has_many :stocks, dependent: :destroy
+  has_many :stock_corrections, dependent: :destroy
+  has_many :stock_details, dependent: :destroy
   has_many :alias_ids, dependent: :destroy
   has_many :set_relationship, class_name: "ProductRelationship", foreign_key: "origin_id", dependent: :destroy
   has_many :set_products, through: :set_relationship, source: :item
+
+  scope :name_asc, -> { order(:name)}
+  scope :name_desc, -> { order(name: :desc)}
 
   def add_set_item(product, num=1)
     set_relationship.create(item_id: product.id, quantity: num)
@@ -105,7 +110,10 @@ class Product < ApplicationRecord
   def init_params
     if stocks.empty?
       StockPlace.all.each do |stock_place|
-        stocks.create(stock_place_id: stock_place.id, quantity: 0)
+        if stock_place.has_quantity
+          stock = stocks.create(stock_place_id: stock_place.id, quantity: 0) 
+          stock.stock_details.create(quantity: 0, price: 0)
+        end
       end
     end
     if alias_ids.empty?

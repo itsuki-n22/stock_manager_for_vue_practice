@@ -74,8 +74,8 @@
             <v-container>
               <v-row align="center" >
                 <v-col cols="12" md="4"><v-text-field @change='updateBulkShipment(bulkShipment)' label="bulkShipment_id" v-model='bulkShipment.name'></v-text-field></v-col>
-                <v-col cols="6" md="2"><v-select item-text="name" item-value="id" :items="stockPlaces" label="出発地" v-model='bulkShipment.from'></v-select></v-col>
-                <v-col cols="6" md="2"><v-select item-text="name" item-value="id" :items="stockPlaces" label="到着地" v-model='bulkShipment.to'></v-select></v-col>
+                <v-col cols="6" md="2"><v-select v-bind:disabled="isnotPhaseFirst(bulkShipment)" item-text="name" item-value="id" :items="stockPlaces" label="出発地" v-model='bulkShipment.from'></v-select></v-col>
+                <v-col cols="6" md="2"><v-select v-bind:disabled="isnotPhaseFirst(bulkShipment)" item-text="name" item-value="id" :items="stockPlaces" label="到着地" v-model='bulkShipment.to'></v-select></v-col>
                 <v-col cols="12" md="2"><v-select item-text="name" item-value="id" @change='updateBulkShipment(bulkShipment)' :items="deliveryAgents" label="配送業者" v-model='bulkShipment.delivery_agent_id'></v-select></v-col>
                 <v-col cols="12" md="2"><v-text-field @change='updateBulkShipment(bulkShipment)' label="追跡番号" v-model='bulkShipment.tracking_number'></v-text-field></v-col>
 
@@ -145,49 +145,55 @@
 
               </v-row>
               <v-row align="center" v-if="bulkShipment.flag">
-                <v-col cols="12" md="2">
-                  <h3>商品を追加する</h3>
-                </v-col>
-                <v-col cols="6" md="3">
-                  <v-text-field label="product_id" v-model='bulkShipment["newProductId"]' v-bind:disabled="isnotPhaseFirst(bulkShipment)"></v-text-field>
-                </v-col>
-                <v-col cols="3" md="1">
-                  <v-text-field label="price" v-model='bulkShipment["newPrice"]' v-bind:disabled="isnotPhaseFirst(bulkShipment)"></v-text-field>
-                </v-col>
-                <v-col cols="3" md="1">
-                  <v-text-field label="quantity" v-model='bulkShipment["newQuantity"]' v-bind:disabled="isnotPhaseFirst(bulkShipment)"></v-text-field>
-                </v-col>
-                <v-col cols="12" md="1">
-                  <v-btn class="" @click="addShippingItem(bulkShipment)" color="primary"  v-bind:disabled="isnotPhaseFirst(bulkShipment)"><v-icon>mdi-plus</v-icon></v-btn>
-                </v-col>
-                <v-col cols="6" md="3">
-                  <h3>この注文を削除する</h3>
-                </v-col>
-                <v-col cols="6" md="1">
-                  <v-btn v-if="bulkShipment.flag" color="error" @click="deleteBulkShipment(bulkShipment)"  v-bind:disabled="isnotPhaseFirst(bulkShipment)"><v-icon> mdi-delete </v-icon></v-btn>
+                <v-col>
+                  <v-form ref="addShippingItemForm">
+                    <v-row>
+                      <v-col cols="12" md="2">
+                        <h3>商品を追加する</h3>
+                      </v-col>
+                      <v-col cols="6" md="3">
+                        <v-text-field label="product_id" v-model='bulkShipment["newProductId"]' v-bind:disabled="isnotPhaseFirst(bulkShipment)"></v-text-field>
+                      </v-col>
+                      <v-col cols="3" md="1">
+                        <v-text-field label="price" v-model='bulkShipment["newPrice"]' v-bind:disabled="isnotPhaseFirst(bulkShipment)"></v-text-field>
+                      </v-col>
+                      <v-col cols="3" md="1">
+                        <v-text-field label="quantity" v-model='bulkShipment["newQuantity"]' v-bind:disabled="isnotPhaseFirst(bulkShipment)"></v-text-field>
+                      </v-col>
+                      <v-col cols="12" md="1">
+                        <v-btn class="" @click="addShippingItem(bulkShipment)" color="primary"  v-bind:disabled="isnotPhaseFirst(bulkShipment)"><v-icon>mdi-plus</v-icon></v-btn>
+                      </v-col>
+                      <v-col cols="6" md="3">
+                        <h3>この注文を削除する</h3>
+                      </v-col>
+                      <v-col cols="6" md="1">
+                        <v-btn v-if="bulkShipment.flag" color="error" @click="deleteBulkShipment(bulkShipment)"  v-bind:disabled="isnotPhaseFirst(bulkShipment)"><v-icon> mdi-delete </v-icon></v-btn>
+                      </v-col>
+                    </v-row>
+                  </v-form>
                 </v-col>
               </v-row>
 
               <v-row v-if="bulkShipment.flag"><v-col>
-              <v-row align="center" v-for="(shipping_item, index) in bulkShipment.shipping_items" v-bind:key="shipping_item.id">
-                <v-spacer />
-                <v-col cols="6" md="1">
-                    <v-img size="80" :src="shipping_item.first_image_url"></v-img>
-                </v-col>
-                <v-col cols="6" md="3">
-                  <v-text-field label="product_id" @change='updateBulkShipment(bulkShipment)' v-model='shipping_item.product_id' v-bind:disabled="isnotPhaseFirst(bulkShipment)"></v-text-field>
-                </v-col>
-                <v-col cols="3" md="1">
-                  <v-text-field label="price" @change='updateBulkShipment(bulkShipment)' v-model='shipping_item.price' v-bind:disabled="isnotPhaseFirst(bulkShipment)"></v-text-field>
-                </v-col>
-                <v-col cols="3" md="1">
-                  <v-text-field label="quantity" @change='updateBulkShipment(bulkShipment)' v-model='shipping_item.quantity' v-bind:disabled="isnotPhaseFirst(bulkShipment)"></v-text-field>
-                </v-col>
-                <v-col cols="3" md="1">
-                  <v-btn class="mt-4" @click="deleteShippingItem(bulkShipment, shipping_item.id)" v-bind:disabled="isnotPhaseFirst(bulkShipment)" ><v-icon>mdi-delete</v-icon></v-btn>
-                </v-col>
-                <v-spacer />
-              </v-row>
+                <v-row align="center" v-for="(shipping_item, index) in bulkShipment.shipping_items" v-bind:key="shipping_item.id">
+                  <v-spacer />
+                  <v-col cols="6" md="1">
+                      <v-img size="80" :src="shipping_item.first_image_url"></v-img>
+                  </v-col>
+                  <v-col cols="6" md="3">
+                    <v-text-field label="product_id" @change='updateBulkShipment(bulkShipment)' v-model='shipping_item.product_id' v-bind:disabled="isnotPhaseFirst(bulkShipment)"></v-text-field>
+                  </v-col>
+                  <v-col cols="3" md="1">
+                    <v-text-field label="price" @change='updateBulkShipment(bulkShipment)' v-model='shipping_item.price' v-bind:disabled="isnotPhaseFirst(bulkShipment)"></v-text-field>
+                  </v-col>
+                  <v-col cols="3" md="1">
+                    <v-text-field label="quantity" @change='updateBulkShipment(bulkShipment)' v-model='shipping_item.quantity' v-bind:disabled="isnotPhaseFirst(bulkShipment)"></v-text-field>
+                  </v-col>
+                  <v-col cols="3" md="1">
+                    <v-btn class="mt-4" @click="deleteShippingItem(bulkShipment, shipping_item.id)" v-bind:disabled="isnotPhaseFirst(bulkShipment)" ><v-icon>mdi-delete</v-icon></v-btn>
+                  </v-col>
+                  <v-spacer />
+                </v-row>
               </v-col></v-row>
             </v-container>
           </v-list-item-content>
@@ -456,6 +462,7 @@
       },
       addShippingItem(bulkShipment){ // TODO 同じ商品が重複しないように
         console.log(bulkShipment)
+        console.log(!bulkShipment.shipping_items)
         if (!bulkShipment.shipping_items) {bulkShipment["shipping_items"] = []}
         bulkShipment.shipping_items.push({
           product_id: bulkShipment.newProductId,

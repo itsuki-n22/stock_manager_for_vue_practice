@@ -3,8 +3,6 @@
 # Table name: stocks
 #
 #  id             :bigint           not null, primary key
-#  ave_price      :float            default(0.0)
-#  quantity       :integer          default(0), not null
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
 #  product_id     :bigint           not null
@@ -23,4 +21,20 @@
 class Stock < ApplicationRecord
   belongs_to :product
   belongs_to :stock_place
+  has_many :stock_details, dependent: :destroy
+
+  def quantity
+    stock_details.inject(0){|result,item| result + item.quantity }
+  end
+
+  def total_price
+    stock_details.inject(0){|result,item| result + (item.quantity * item.price) }
+  end
+
+  def ave_price
+    ave_price = total_price / quantity
+    return 0 if ave_price.nan?
+    ave_price
+  end
+    
 end

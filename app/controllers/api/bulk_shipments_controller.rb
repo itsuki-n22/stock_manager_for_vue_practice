@@ -25,7 +25,7 @@ class Api::BulkShipmentsController < ApplicationController
 
     shipping_items.each do |shipping_item|
       shipping_item = shipping_item.slice(*BulkShippingItem.column_names)
-      if shipping_item["id"] && BulkShippingItem.find(shipping_item["id"])  #update
+      if shipping_item["id"] && BulkShippingItem.all.find(shipping_item["id"])  #update
         bulk_shipping_item = @bulk_shipment.bulk_shipping_items.find(shipping_item["id"])
         bulk_shipping_item.update(shipping_item)
         if previous_phase != current_phase && previous_phase == "preparing" && @bulk_shipment.departure.has_quantity

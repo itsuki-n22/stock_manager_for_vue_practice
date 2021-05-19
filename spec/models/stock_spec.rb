@@ -3,8 +3,6 @@
 # Table name: stocks
 #
 #  id             :bigint           not null, primary key
-#  ave_price      :float            default(0.0)
-#  quantity       :integer          default(0), not null
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
 #  product_id     :bigint           not null
